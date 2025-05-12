@@ -40,7 +40,7 @@ flowchart TD
 graph TD
   A[app]
   A1[dashboard/page.tsx]
-  A2[meals/[mealType]/page.tsx]
+  A2["meals/[mealType]/page.tsx"]
   A3[api/adjust-recipe/route.ts]
   B[components]
   B1[RecipeSelector.tsx]
