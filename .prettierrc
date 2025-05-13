@@ -4,7 +4,6 @@
     "jsxSingleQuote": true,
     "trailingComma": "all",
     "bracketSameLine": true,
-    "plugins": ["prettier-plugin-astro"],
     "overrides": [
         {
             "files": "*.astro",
