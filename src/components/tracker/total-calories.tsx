@@ -45,6 +45,7 @@ export default function TotalCalories({
     carbohydrates: number;
     protein: number;
 }) {
+    // TODO: Demo-Daten mit tatsächlichen Daten anbinden; Localstorage als Datenbank
     const totalCalorieData = [
         { type: 'Gegessen', value: totalCalories, fill: 'var(--chart-1)' },
         { type: 'Übrig', value: 700, fill: 'var(--chart-empty)' },

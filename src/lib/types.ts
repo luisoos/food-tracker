@@ -15,17 +15,17 @@ interface MacroGoal extends Macros {
 }
 
 interface DailyGoal {
-    calories: number; // Gesamtkalorienziel pro Tag
-    macros: MacroGoal; // Makronährstoffziele pro Tag
+    calories: number; // Kalorienziel pro Tag
+    macros: MacroGoal; // Makroziele pro Tag
 }
 
 // Zutatendefinition
 interface Ingredient {
-    id: string; // Eindeutige ID
-    name: string; // Name der Zutat
-    category: string; // Kategorie (z.B. "Gemüse", "Protein", "Kohlenhydrate")
+    id: string; // ID / Primary-Key
+    name: string; // Name
+    category: string; // Kategorie
     isFlexible: boolean; // Gibt an, ob die Zutat angepasst werden kann
-    macrosPer100g: Macros; // Makronährstoffe pro 100g
+    macrosPer100g: Macros; // Makros pro 100g
 }
 
 // Zutat in einem Rezept
@@ -67,20 +67,31 @@ interface DailyPlan {
     remainingMacros?: Macros; // Verbleibende Makros bis zum Tagesziel
 }
 
+// Einzelne Anpassung
+type Adjustment = {
+    ingredientId: string; // Referenz auf die Zutat
+    macro: keyof Macros; // Dessen Makro
+    amount: number; // Anzahl der Zutat
+    efficiency: number; // Bewertungsindex, ob es Sinn macht, diese Zutat anzupassen
+};
+
+type ParentAdjustment = {
+    ingredientId: string; // Referenz auf die Zutat
+    originalAmount: number; // Eigentliche Menge
+    newAmount: number; // Neue Menge
+    reason: string; // Erklärung für die Anpassung
+};
+
 // Eingabe für den Anpassungsalgorithmus
 interface AdjustmentInput {
     recipe: Recipe; // Das anzupassende Rezept
     changedIngredient?: RecipeIngredient; // Die vom Benutzer geänderte Zutat
     dailyPlan: DailyPlan; // Der aktuelle Tagesplan
+    currentMealType: MealType;
 }
 
 // Ausgabe des Anpassungsalgorithmus
 interface AdjustmentOutput {
     adjustedRecipe: Recipe; // Das angepasste Rezept
-    adjustments: {
-        ingredientId: string;
-        originalAmount: number;
-        newAmount: number;
-        reason: string; // Erklärung für die Anpassung
-    }[];
+    adjustments: ParentAdjustment[];
 }
