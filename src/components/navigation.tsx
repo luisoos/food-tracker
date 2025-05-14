@@ -3,7 +3,7 @@ import { ChefHat, LayoutList } from 'lucide-react';
 
 export default function Navigation() {
     return (
-        <div className='max-md:border-b w-full mx-2 pt-6 md:py-8 md:flex items-end'>
+        <div className='max-md:border-b w-full pt-6 md:py-8 md:flex items-end'>
             <NavItem href='/' className='text-2xl'>
                 {' '}
                 🍉 Food Tracker

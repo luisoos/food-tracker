@@ -10,7 +10,12 @@ export default function Home() {
                 <DatePicker />
             </div>
             <div className='mt-6'>
-                <TotalCalories totalCalories={2230} fats={123} carbohydrates={54} protein={91} />
+                <TotalCalories
+                    totalCalories={2230}
+                    fats={123}
+                    carbohydrates={54}
+                    protein={91}
+                />
             </div>
         </div>
     );
