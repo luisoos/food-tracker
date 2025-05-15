@@ -1,5 +1,6 @@
 import Navigation from '@/components/navigation';
 import { DatePicker } from '@/components/tracker/date';
+import MealSelector from '@/components/tracker/meal-selector';
 import TotalCalories from '@/components/tracker/total-calories';
 
 export default function Home() {
@@ -16,6 +17,9 @@ export default function Home() {
                     carbohydrates={54}
                     protein={91}
                 />
+            </div>
+            <div className='mt-6'>
+                <MealSelector />
             </div>
         </div>
     );
