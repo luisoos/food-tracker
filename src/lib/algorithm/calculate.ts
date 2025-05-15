@@ -1,4 +1,16 @@
 // Berechnungen verschiedener Zusammensetzungen ("Mini-Facade")
+
+import {
+    CARBS_CALORIES_PER_GRAM,
+    FAT_CALORIES_PER_GRAM,
+    PROTEIN_CALORIES_PER_GRAM,
+    Ingredient,
+    Macros,
+    Recipe,
+    DailyPlan,
+    DailyGoal,
+} from '../types';
+
 // Berechnet Makros für eine bestimmte Menge einer Zutat
 export function calculateIngredientMacros(
     ingredient: Ingredient,
@@ -78,21 +90,22 @@ export function calculateRemainingMacros(dailyPlan: DailyPlan): Macros {
 export function isWithinGoal(
     macro: keyof Macros,
     currentValue: number,
-    goal: DailyGoal
-  ): boolean {
+    goal: DailyGoal,
+): boolean {
     const target = goal.macros[macro];
     const tolerance = target * (goal.macros.plusMinusPercentage / 100);
-    
-    return currentValue >= target - tolerance && currentValue <= target + tolerance;
+
+    return (
+        currentValue >= target - tolerance && currentValue <= target + tolerance
+    );
 }
 
 export function getMaxCompensation(macro: keyof Macros): number {
     // Basierend auf durchschnittlicher maximaler Kompensationsfähigkeit pro Mahlzeit
     const maxValues: Record<keyof Macros, number> = {
-      protein: 30,  // Maximal 30g Protein pro Mahlzeit anpassbar
-      carbs: 50,
-      fat: 20
+        protein: 30, // Maximal 30g Protein pro Mahlzeit anpassbar
+        carbs: 50,
+        fat: 20,
     };
     return maxValues[macro];
-  }
-  
+}

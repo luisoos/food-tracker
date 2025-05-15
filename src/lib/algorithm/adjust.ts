@@ -1,5 +1,20 @@
-import { calculateMacroDifference, calculateRemainingMacros, isWithinGoal, calculateRecipeMacros, calculateCaloriesFromMacros, getMaxCompensation } from "./calculate";
-import { findBestIngredientsToAdjust } from "./evaluate";
+import {
+    AdjustmentInput,
+    AdjustmentOutput,
+    Recipe,
+    Macros,
+    MealType,
+    ParentAdjustment,
+} from '../types';
+import {
+    calculateMacroDifference,
+    calculateRemainingMacros,
+    isWithinGoal,
+    calculateRecipeMacros,
+    calculateCaloriesFromMacros,
+    getMaxCompensation,
+} from './calculate';
+import { findBestIngredientsToAdjust } from './evaluate';
 
 export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     const { recipe, changedIngredient, dailyPlan, currentMealType } = input;
@@ -8,7 +23,11 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     const adjustedRecipe: Recipe = JSON.parse(JSON.stringify(recipe));
     const adjustments: ParentAdjustment[] = [];
 
-    const mealOrder: MealType[] = [MealType.BREAKFAST, MealType.LUNCH, MealType.DINNER];
+    const mealOrder: MealType[] = [
+        MealType.BREAKFAST,
+        MealType.LUNCH,
+        MealType.DINNER,
+    ];
     const currentMealIndex = mealOrder.indexOf(currentMealType);
     const remainingMeals = mealOrder.slice(currentMealIndex + 1);
 
@@ -70,32 +89,37 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     else {
         // Berechne fehlende/überschüssige Makros
         const remaining = calculateRemainingMacros(dailyPlan);
-    
+
         // Dynamischer Kompensationsfaktor basierend auf verbleibenden Mahlzeiten
-        const compensationFactor = remainingMeals.length > 0 
-          ? 1 / (remainingMeals.length + 1) 
-          : 1; // Letzte Mahlzeit muss vollständig kompensieren
-    
+        const compensationFactor =
+            remainingMeals.length > 0 ? 1 / (remainingMeals.length + 1) : 1; // Letzte Mahlzeit muss vollständig kompensieren
+
         const adjustedDeficit = {
-          protein: remaining.protein * compensationFactor,
-          carbs: remaining.carbs * compensationFactor,
-          fat: remaining.fat * compensationFactor
+            protein: remaining.protein * compensationFactor,
+            carbs: remaining.carbs * compensationFactor,
+            fat: remaining.fat * compensationFactor,
         };
-    
+
         // Prüfung mit angepasster Toleranzlogik
         const canCompensateLater = (macro: keyof Macros, value: number) => {
-          const maxFutureCompensation = remainingMeals.length * getMaxCompensation(macro);
-          return Math.abs(value) <= maxFutureCompensation;
+            const maxFutureCompensation =
+                remainingMeals.length * getMaxCompensation(macro);
+            return Math.abs(value) <= maxFutureCompensation;
         };
-    
-        const needsAdjustment = Object.entries(adjustedDeficit).some(([macro, value]) => 
-          !canCompensateLater(macro as keyof Macros, value)
+
+        const needsAdjustment = Object.entries(adjustedDeficit).some(
+            ([macro, value]) =>
+                !canCompensateLater(macro as keyof Macros, value),
         );
-    
-        if (!needsAdjustment) return { adjustedRecipe: recipe, adjustments: [] };
-    
+
+        if (!needsAdjustment)
+            return { adjustedRecipe: recipe, adjustments: [] };
+
         // Anpassungslogik mit dynamischem Defizit
-        const bestOptions = findBestIngredientsToAdjust(recipe, adjustedDeficit);
+        const bestOptions = findBestIngredientsToAdjust(
+            recipe,
+            adjustedDeficit,
+        );
 
         // Übernehme Top 3 Anpassungen
         bestOptions.slice(0, 3).forEach((option) => {

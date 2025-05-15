@@ -1,3 +1,9 @@
+import {
+    AdjustmentOutput,
+    Recipe,
+    DailyPlan,
+    RecipeIngredient,
+} from '@/lib/types';
 import { useState, useCallback } from 'react';
 
 export function useRecipeAdjustment() {

@@ -1,3 +1,5 @@
+import { Adjustment, Ingredient, Macros, Recipe } from '../types';
+
 // Berechnet die "Effizienz" einer Zutat für die Bereitstellung eines bestimmten Makros
 export function calculateIngredientEfficiency(
     ingredient: Ingredient,

@@ -20,7 +20,7 @@ export default function Macronutrients({
     fat,
 }: MacronutrientsProps) {
     // TODO: isWithinGoal integrieren
-    
+
     // Create an array of the data to map through
     const macros = [
         { label: 'Kohlenhydrate', data: carbs },

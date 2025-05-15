@@ -1,3 +1,5 @@
+import { Ingredient, Recipe } from './types';
+
 // Hard-gecodete Rezepte als Beispiele
 // Zutaten
 const ingredients: Record<string, Ingredient> = {
@@ -32,7 +34,7 @@ const ingredients: Record<string, Ingredient> = {
 };
 
 // Beispiel-Rezepte
-const recipes: Record<string, Recipe> = {
+export const recipes: Record<string, Recipe> = {
     chickenRiceBowl: {
         id: 'chicken_rice_bowl',
         name: 'Hähnchen-Reis-Bowl',

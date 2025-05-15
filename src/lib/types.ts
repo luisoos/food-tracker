@@ -95,3 +95,23 @@ interface AdjustmentOutput {
     adjustedRecipe: Recipe; // Das angepasste Rezept
     adjustments: ParentAdjustment[];
 }
+
+export {
+    PROTEIN_CALORIES_PER_GRAM,
+    CARBS_CALORIES_PER_GRAM,
+    FAT_CALORIES_PER_GRAM,
+    MealType,
+};
+
+export type {
+    Macros,
+    DailyGoal,
+    Ingredient,
+    RecipeIngredient,
+    Recipe,
+    DailyPlan,
+    Adjustment,
+    ParentAdjustment,
+    AdjustmentInput,
+    AdjustmentOutput,
+};
