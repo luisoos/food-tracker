@@ -11,6 +11,7 @@ import {
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
+import RecipeSelector from './recipe-selector';
 
 export default function MealSelector() {
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
@@ -67,21 +68,15 @@ function MealDisplay({
     typeName: string;
     content: Meal | undefined;
 }) {
-    function handleClick() {
-        if (!content) {
-            // TODO: open drawer
-        }
-    }
-
     return (
         <div key={content?.type || typeName}>
-            <div
-                className='flex flex-col justify-center items-center rounded-lg border shadow-inner w-full h-32 cursor-pointer'
-                onClick={handleClick}>
+            <div className='flex flex-col justify-center items-center rounded-lg border shadow-inner w-full h-32'>
                 {content ? (
                     <p className='font-semibold'>{content.recipe.name}</p>
                 ) : (
-                    <Plus size={48} className='text-zinc-300' />
+                    <RecipeSelector typeName={typeName}>
+                        <Plus size={48} className='text-zinc-300 mx-auto' />
+                    </RecipeSelector>
                 )}
             </div>
 

@@ -36,7 +36,7 @@ export default function Macronutrients({
                         <div className='font-semibold'>{macro.label}</div>
                         <div className='h-8 w-full bg-zinc-100 rounded-full overflow-hidden relative'>
                             <div
-                                className='h-full border-3 border-zinc-100 transition-all duration-300'
+                                className='h-full border-3 transition-all duration-300'
                                 style={{
                                     width: `${Math.min(100, (macro.data.consumed / macro.data.total) * 100)}%`,
                                     backgroundColor: macro.data.color,

@@ -8,6 +8,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - TailwindCSS
 - [shadcn/ui](https://ui.shadcn.com/)
 - [zustand](https://zustand.docs.pmnd.rs/)
+- [TanStack Query](https://tanstack.com/query/latest)
 
 ## 🚀 Getting Started
 
