@@ -22,6 +22,7 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import Macronutrients from './macro-view';
+import { CALORIES_TARGET } from '@/lib/recipes';
 
 const totalCalorieChartConfig = {
     eaten: {
@@ -46,28 +47,27 @@ export default function TotalCalories({
     protein: number;
 }) {
     // TODO: Demo-Daten mit tatsächlichen Daten anbinden; Localstorage als Datenbank
-    const totalCalorieData = [
-        { type: 'Gegessen', value: totalCalories, fill: 'var(--chart-1)' },
-        { type: 'Übrig', value: 700, fill: 'var(--chart-empty)' },
-    ];
-
-    const macroData = {
-        carbs: {
-            consumed: 230,
-            total: 264,
-            color: '#DB8DE7', // Purple for carbs
-        },
-        protein: {
-            consumed: 114,
-            total: 120,
-            color: '#F4B43B', // Amber for protein
-        },
-        fat: {
-            consumed: 34,
-            total: 85,
-            color: '#2DABEA', // Cyan for fat
-        },
-    };
+    const totalCalorieData =
+        totalCalories > CALORIES_TARGET
+            ? [
+                  {
+                      type: 'Gegessen',
+                      value: CALORIES_TARGET,
+                      fill: 'var(--chart-1)',
+                  },
+              ]
+            : [
+                  {
+                      type: 'Gegessen',
+                      value: totalCalories,
+                      fill: 'var(--chart-1)',
+                  },
+                  {
+                      type: 'Übrig',
+                      value: CALORIES_TARGET - totalCalories,
+                      fill: 'var(--chart-empty)',
+                  },
+              ];
 
     return (
         <Card className='flex flex-col'>
@@ -138,11 +138,7 @@ export default function TotalCalories({
                     </ChartContainer>
                 </div>
 
-                <Macronutrients
-                    carbs={macroData.carbs}
-                    protein={macroData.protein}
-                    fat={macroData.fat}
-                />
+                <Macronutrients carbs={100} protein={32} fat={60} />
             </CardContent>
         </Card>
     );

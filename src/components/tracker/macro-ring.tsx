@@ -8,21 +8,33 @@ interface MacroRingProps {
     children?: React.ReactNode;
 }
 
-export default function MacroRing({ value, color, size = 48, strokeWidth = 5, children }: MacroRingProps) {
+export default function MacroRing({
+    value,
+    color,
+    size = 48,
+    strokeWidth = 5,
+    children,
+}: MacroRingProps) {
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference * (1 - value / 100);
 
     return (
-        <div style={{ width: size, height: size, position: 'relative', display: 'inline-block' }}>
+        <div
+            style={{
+                width: size,
+                height: size,
+                position: 'relative',
+                display: 'inline-block',
+            }}>
             <svg width={size} height={size}>
                 <circle
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke="#eee"
+                    stroke='#eee'
                     strokeWidth={strokeWidth}
-                    fill="none"
+                    fill='none'
                 />
                 <circle
                     cx={size / 2}
@@ -30,10 +42,10 @@ export default function MacroRing({ value, color, size = 48, strokeWidth = 5, ch
                     r={radius}
                     stroke={color}
                     strokeWidth={strokeWidth}
-                    fill="none"
+                    fill='none'
                     strokeDasharray={circumference}
                     strokeDashoffset={offset}
-                    strokeLinecap="round"
+                    strokeLinecap='round'
                     style={{ transition: 'stroke-dashoffset 0.5s' }}
                     transform={`rotate(-90 ${size / 2} ${size / 2})`}
                 />
@@ -50,10 +62,9 @@ export default function MacroRing({ value, color, size = 48, strokeWidth = 5, ch
                     justifyContent: 'center',
                     fontWeight: 600,
                     fontSize: size * 0.38,
-                }}
-            >
+                }}>
                 {children ?? <span>{Math.round(value)} %</span>}
             </div>
         </div>
     );
-} 
+}
