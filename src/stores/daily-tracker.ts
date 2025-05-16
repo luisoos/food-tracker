@@ -1,5 +1,5 @@
 import { DailyPlan } from '@/lib/types';
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 type Store = {
     dailyPlan: DailyPlan | null;
@@ -18,5 +18,5 @@ export const useDailyPlanStore = create<Store>((set) => ({
         if (storedDailyPlan) {
             set({ dailyPlan: JSON.parse(storedDailyPlan) });
         }
-    }
+    },
 }));
