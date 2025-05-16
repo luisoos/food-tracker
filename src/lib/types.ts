@@ -109,6 +109,7 @@ export type {
     Ingredient,
     RecipeIngredient,
     Recipe,
+    Meal,
     DailyPlan,
     Adjustment,
     ParentAdjustment,
