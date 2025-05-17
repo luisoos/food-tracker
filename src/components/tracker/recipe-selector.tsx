@@ -13,6 +13,7 @@ import { Button } from '../ui/button';
 import { useRecipes } from '@/hooks/useRecipes';
 import { Recipe } from '@/lib/types';
 import MacroRing from './macro-ring';
+import IngredientList from './ingredient-list';
 
 export default function RecipeSelector({
     typeName,
@@ -25,9 +26,11 @@ export default function RecipeSelector({
 
     const handleRecipeSelection = (recipeId: string) => {
         setRecipeId(recipeId);
-        // TODO: implement next steps
-        // switch to ingredient & adapt view
         // "back"-button: resets selected recipe (setRecipeId())
+    };
+
+    const resetRecipeSelection = (recipeId: string) => {
+        setRecipeId(undefined);
     };
 
     return (
@@ -40,7 +43,7 @@ export default function RecipeSelector({
                     <DrawerTitle className='text-xl'>
                         {typeName} hinzufügen
                     </DrawerTitle>
-                    {recipeId ? (
+                    {!recipeId ? (
                         <>
                             <DrawerDescription>
                                 Wähle ein Rezept aus:
@@ -50,9 +53,9 @@ export default function RecipeSelector({
                     ) : (
                         <>
                             <DrawerDescription>
-                                Wähle ein Rezept aus:
+                                Zutaten 
                             </DrawerDescription>
-                            <RecipeList onSelect={handleRecipeSelection} />
+                            <IngredientList recipeId={recipeId!} onBack={resetRecipeSelection} />
                         </>
                     )}
                 </DrawerHeader>

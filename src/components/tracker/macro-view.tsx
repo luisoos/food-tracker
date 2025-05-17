@@ -2,6 +2,7 @@
 
 import { CARBS_TARGET, FAT_TARGET, PROTEIN_TARGET } from '@/lib/recipes';
 import { Macros } from '@/lib/types';
+import { toGermanNumber } from '@/lib/utils';
 import React from 'react';
 
 export default function Macronutrients({ carbs, protein, fat }: Macros) {
@@ -30,7 +31,7 @@ export default function Macronutrients({ carbs, protein, fat }: Macros) {
     ];
 
     return (
-        <div className='mx-auto w-full max-w-md'>
+        <div className='w-full max-w-md'>
             <div className='space-y-4'>
                 {macros.map((macro) => (
                     <div key={macro.label} className='space-y-1'>
@@ -45,7 +46,7 @@ export default function Macronutrients({ carbs, protein, fat }: Macros) {
                                 }}
                             />
                             <div className='absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium'>
-                                {macro.consumed}g von {macro.total}g
+                                {toGermanNumber(macro.consumed)}g von {toGermanNumber(macro.total)}g
                             </div>
                         </div>
                     </div>

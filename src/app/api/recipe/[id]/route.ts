@@ -5,7 +5,8 @@ export async function GET(
     req: NextRequest,
     { params }: { params: { id: string } },
 ) {
-    const recipe = Object.values(recipes).find((r) => r.id === params.id);
+    const { id } = await params;
+    const recipe = Object.values(recipes).find((r) => r.id === id);
     if (!recipe) {
         return NextResponse.json(
             { error: 'Recipe not found' },
