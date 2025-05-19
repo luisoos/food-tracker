@@ -138,7 +138,7 @@ export default function TotalCalories({
                     </ChartContainer>
                 </div>
 
-                <Macronutrients carbs={100} protein={32} fat={60} />
+                <Macronutrients carbs={100} protein={32} fat={60} className="max-w-md" />
             </CardContent>
         </Card>
     );

@@ -2,10 +2,10 @@
 
 import { CARBS_TARGET, FAT_TARGET, PROTEIN_TARGET } from '@/lib/recipes';
 import { Macros } from '@/lib/types';
-import { toGermanNumber } from '@/lib/utils';
+import { cn, toGermanNumber } from '@/lib/utils';
 import React from 'react';
 
-export default function Macronutrients({ carbs, protein, fat }: Macros) {
+export default function Macronutrients({ carbs, protein, fat, className }: Macros & { className?: string }) {
     // TODO: isWithinGoal integrieren
 
     // Create an array of the data to map through
@@ -31,7 +31,7 @@ export default function Macronutrients({ carbs, protein, fat }: Macros) {
     ];
 
     return (
-        <div className='w-full max-w-md'>
+        <div className={cn('w-full max-w-lg', className)}>
             <div className='space-y-4'>
                 {macros.map((macro) => (
                     <div key={macro.label} className='space-y-1'>
@@ -46,7 +46,8 @@ export default function Macronutrients({ carbs, protein, fat }: Macros) {
                                 }}
                             />
                             <div className='absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium'>
-                                {toGermanNumber(macro.consumed)}g von {toGermanNumber(macro.total)}g
+                                {toGermanNumber(macro.consumed)}g von{' '}
+                                {toGermanNumber(macro.total)}g
                             </div>
                         </div>
                     </div>
