@@ -18,6 +18,11 @@ export default function IngredientAdjustBanner({
     const controls = useAnimation();
 
     useEffect(() => {
+        // Fade-in on mount
+        controls.start({ opacity: 1, y: 0, transition: { duration: 0.3 } });
+    }, [controls]);
+
+    useEffect(() => {
         if (shake) {
             controls.start({
                 x: [0, -10, 10, -10, 10, 0],
@@ -31,6 +36,7 @@ export default function IngredientAdjustBanner({
 
     return (
         <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={controls}
             className='flex flex-col items-center justify-center max-w-md mx-auto mt-4'>
             <p className='font-medium mb-4'>Mangel Ausgleich berechnen?</p>

@@ -150,7 +150,7 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
                                             g
                                         </span>
                                     </TableCell>
-                                    <TableCell 
+                                    <TableCell
                                         className={`w-8 ${changedValues[ingredient.ingredient.id] !== originalValues[ingredient.ingredient.id] ? 'text-red-700 line-through' : 'text-zinc-400'}`}>
                                         {toGermanNumber(ingredient.amount)}g
                                     </TableCell>
