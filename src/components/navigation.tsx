@@ -6,16 +6,16 @@ export default function Navigation() {
         <div className='max-md:border-b w-full pt-6 md:py-8 md:flex items-end'>
             <NavItem href='/' className='text-2xl'>
                 {' '}
-                🍉 Food Tracker
+                🍉 Ernährungstracker
             </NavItem>
             <NavItem href='/'>
                 {' '}
-                <LayoutList size='16' className='my-auto mr-1' /> Daily
+                <LayoutList size='16' className='my-auto mr-1' /> Täglicher
                 Tracker{' '}
             </NavItem>
             <NavItem href='/recipes'>
                 {' '}
-                <ChefHat size='16' className='my-auto mr-1' /> All Recipes{' '}
+                <ChefHat size='16' className='my-auto mr-1' /> Alle Rezepte{' '}
             </NavItem>
         </div>
     );
