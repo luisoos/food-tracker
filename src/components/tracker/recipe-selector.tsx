@@ -12,7 +12,7 @@ import {
 import { Button } from '../ui/button';
 import IngredientList from './ingredient-list';
 import RecipeList from './recipe-list';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Ban, Plus } from 'lucide-react';
 
 export default function RecipeSelector({
@@ -43,58 +43,50 @@ export default function RecipeSelector({
                     <DrawerTitle className='text-xl'>
                         {typeName} hinzufügen
                     </DrawerTitle>
-                    <AnimatePresence mode="wait">{!recipeId ? (
-                        <motion.div
-                        key="recipe-list"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                            <DrawerDescription>
-                                Wähle ein Rezept aus:
-                            </DrawerDescription>
-                            <RecipeList onSelect={handleRecipeSelection} />
+                    <AnimatePresence mode='wait'>
+                        {!recipeId ? (
+                            <motion.div
+                                key='recipe-list'
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.3 }}>
+                                <DrawerDescription>
+                                    Wähle ein Rezept aus:
+                                </DrawerDescription>
+                                <RecipeList onSelect={handleRecipeSelection} />
                             </motion.div>
-                    ) : (
-                        <motion.div
-                            key="ingredient-list"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            
-                        <button
-                            onClick={() => setRecipeId(undefined)}
-                            className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'
-                        >
-                            <ArrowLeft size={16} /> Zurück zur Rezeptauswahl
-                        </button>
-                            <DrawerDescription>Zutaten:</DrawerDescription>
-                            <IngredientList
-                                recipeId={recipeId!}
-                            />
-                        </motion.div>
-                    )}</AnimatePresence>
+                        ) : (
+                            <motion.div
+                                key='ingredient-list'
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.3 }}>
+                                <button
+                                    onClick={() => setRecipeId(undefined)}
+                                    className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
+                                    <ArrowLeft size={16} /> Zurück zur
+                                    Rezeptauswahl
+                                </button>
+                                <DrawerDescription>Zutaten:</DrawerDescription>
+                                <IngredientList recipeId={recipeId!} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </DrawerHeader>
-                <DrawerFooter className="flex flex-row justify-between">
+                <DrawerFooter className='flex flex-row justify-between'>
                     <DrawerClose asChild>
-                        <Button
-                            variant='outline'
-                            className='mr-2'>
+                        <Button variant='outline' className='mr-2'>
                             <Ban /> Abbrechen
                         </Button>
                     </DrawerClose>
                     {recipeId && (
-                    <Button
-                        variant='default'
-                        className='ml-2'>
-                        <Plus /> Hinzufügen
-                    </Button>
+                        <Button variant='default' className='ml-2'>
+                            <Plus /> Hinzufügen
+                        </Button>
                     )}
                 </DrawerFooter>
-
             </DrawerContent>
         </Drawer>
     );

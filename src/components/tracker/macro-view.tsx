@@ -5,7 +5,12 @@ import { Macros } from '@/lib/types';
 import { cn, toGermanNumber } from '@/lib/utils';
 import React from 'react';
 
-export default function Macronutrients({ carbs, protein, fat, className }: Macros & { className?: string }) {
+export default function Macronutrients({
+    carbs,
+    protein,
+    fat,
+    className,
+}: Macros & { className?: string }) {
     // TODO: isWithinGoal integrieren
 
     // Create an array of the data to map through

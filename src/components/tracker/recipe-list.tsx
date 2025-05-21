@@ -1,8 +1,12 @@
-import { useRecipes } from "@/hooks/useRecipes";
-import { Recipe } from "@/lib/types";
-import MacroRing from "./macro-ring";
+import { useRecipes } from '@/hooks/useRecipes';
+import { Recipe } from '@/lib/types';
+import MacroRing from './macro-ring';
 
-export default function RecipeList({ onSelect }: { onSelect: (data: string) => void }) {
+export default function RecipeList({
+    onSelect,
+}: {
+    onSelect: (data: string) => void;
+}) {
     const { data, isLoading, error } = useRecipes();
 
     if (isLoading) return <div>Loading...</div>;
