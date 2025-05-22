@@ -72,7 +72,7 @@ export default function RecipeList({
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
                                         value={(macros.carbs / 264) * 100}
-                                        color='#DB8DE7'
+                                        color='#e0d83c'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(
@@ -88,7 +88,7 @@ export default function RecipeList({
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
                                         value={(macros.protein / 120) * 100}
-                                        color='#F4B43B'
+                                        color='#30bc29'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(
@@ -104,7 +104,7 @@ export default function RecipeList({
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
                                         value={(macros.fat / 85) * 100}
-                                        color='#2DABEA'
+                                        color='#e0423c'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(

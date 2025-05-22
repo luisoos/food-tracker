@@ -19,19 +19,19 @@ export default function Macronutrients({
             label: 'Kohlenhydrate',
             consumed: carbs,
             total: CARBS_TARGET,
-            color: '#DB8DE7',
+            color: '#e0d83c',
         },
         {
             label: 'Proteine',
             consumed: protein,
             total: PROTEIN_TARGET,
-            color: '#F4B43B',
+            color: '#30bc29',
         },
         {
             label: 'Fette',
             consumed: fat,
             total: FAT_TARGET,
-            color: '#2DABEA',
+            color: '#e0423c',
         },
     ];
 
