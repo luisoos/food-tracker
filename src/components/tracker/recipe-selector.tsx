@@ -14,6 +14,7 @@ import IngredientList from './ingredient-list';
 import RecipeList from './recipe-list';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Ban, Plus } from 'lucide-react';
+import { ScrollArea } from '../ui/scroll-area';
 
 export default function RecipeSelector({
     typeName,
@@ -33,13 +34,15 @@ export default function RecipeSelector({
         setRecipeId(undefined);
     };
 
+    const scrollAreaSize = 400;
+
     return (
-        <Drawer>
+        <Drawer onClose={() => resetRecipeSelection}>
             <DrawerTrigger className='w-full h-full cursor-pointer'>
                 {children}
             </DrawerTrigger>
-            <DrawerContent className='px-4 md:px-32 xl:px-72 2xl:px-96'>
-                <DrawerHeader>
+            <DrawerContent style={{ height: `${scrollAreaSize + 122}px` }} className='md:px-32 xl:px-72 2xl:px-96'>
+                <DrawerHeader className="pb-0">
                     <DrawerTitle className='text-xl'>
                         {typeName} hinzufügen
                     </DrawerTitle>
@@ -51,10 +54,20 @@ export default function RecipeSelector({
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.3 }}>
+                                    
+                                    <DrawerClose asChild><button
+                                    onClick={() => setRecipeId(undefined)}
+                                    className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
+                                    <ArrowLeft size={16} /> Zurück zur
+                                    Tagesübersicht
+                                </button></DrawerClose>
                                 <DrawerDescription>
                                     Wähle ein Rezept aus:
                                 </DrawerDescription>
-                                <RecipeList onSelect={handleRecipeSelection} />
+                                <ScrollArea 
+  style={{ height: `${scrollAreaSize}px` }} className='pr-4 z-10'>
+                                    <RecipeList onSelect={handleRecipeSelection} />
+                                </ScrollArea>
                             </motion.div>
                         ) : (
                             <motion.div
@@ -75,18 +88,18 @@ export default function RecipeSelector({
                         )}
                     </AnimatePresence>
                 </DrawerHeader>
-                <DrawerFooter className='flex flex-row justify-between'>
-                    <DrawerClose asChild>
-                        <Button variant='outline' className='mr-2'>
-                            <Ban /> Abbrechen
-                        </Button>
-                    </DrawerClose>
-                    {recipeId && (
-                        <Button variant='default' className='ml-2'>
-                            <Plus /> Hinzufügen
-                        </Button>
-                    )}
-                </DrawerFooter>
+                {recipeId && (
+                    <DrawerFooter className='flex flex-row justify-between'>
+                        <DrawerClose asChild>
+                            <Button variant='outline' className='mr-2'>
+                                <Ban /> Abbrechen
+                            </Button>
+                        </DrawerClose>
+                            <Button variant='default' className='ml-2'>
+                                <Plus /> Hinzufügen
+                            </Button>
+                    </DrawerFooter>
+                )}
             </DrawerContent>
         </Drawer>
     );

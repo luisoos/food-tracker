@@ -30,7 +30,7 @@ export default function RecipeList({
     };
 
     return (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-2'>
             {Object.values(data as Record<string, Recipe>).map((recipe) => {
                 const macros = calculateMacros(recipe);
                 const totalCalories =
@@ -39,7 +39,7 @@ export default function RecipeList({
                 return (
                     <div
                         key={recipe.id}
-                        className='p-4 rounded-lg border shadow-inner hover:scale-95 duration-300 delay-50 transition-all cursor-pointer'
+                        className=' flex flex-col h-full p-4 rounded-lg border shadow-inner hover:scale-95 duration-300 delay-50 transition-all cursor-pointer'
                         onClick={() => onSelect(recipe.id)}>
                         <h3 className='font-semibold text-lg mb-2'>
                             {recipe.name}
@@ -118,10 +118,10 @@ export default function RecipeList({
                                     </span>
                                 </div>
                             </div>
-                            <div className='text-sm font-medium text-center'>
+                        </div>
+                            <div className='mt-auto text-sm font-medium text-center'>
                                 {Math.round(totalCalories)} kcal
                             </div>
-                        </div>
                     </div>
                 );
             })}
