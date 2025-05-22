@@ -67,7 +67,7 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
             [ingredientId]: value,
         }));
 
-        setEditingIngredientId(isModified ? ingredientId : null);
+        setEditingIngredientId(isModified ? ingredientId : null);        
     }
 
     // Handle input blur event

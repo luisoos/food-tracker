@@ -27,17 +27,16 @@ export default function RecipeSelector({
 
     const handleRecipeSelection = (recipeId: string) => {
         setRecipeId(recipeId);
-        // "back"-button: resets selected recipe (setRecipeId())
     };
 
-    const resetRecipeSelection = (recipeId: string) => {
+    const resetRecipeSelection = () => {
         setRecipeId(undefined);
     };
 
     const scrollAreaSize = 400;
 
     return (
-        <Drawer onClose={() => resetRecipeSelection}>
+        <Drawer onClose={() => resetRecipeSelection()}>
             <DrawerTrigger className='w-full h-full cursor-pointer'>
                 {children}
             </DrawerTrigger>

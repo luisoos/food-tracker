@@ -18,7 +18,7 @@ export default function Home() {
                     protein={91}
                 />
             </div>
-            <div className='mt-6'>
+            <div className='mt-6 mb-2'>
                 <MealSelector />
             </div>
         </div>
