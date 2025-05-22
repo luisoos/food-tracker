@@ -1,23 +1,26 @@
 import { useRecipe } from '@/hooks/useRecipeById';
+import { useRecipeAdjustment } from '@/hooks/useRecipeAdjustment';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '../ui/input';
 import Macronutrients from './macro-view';
 import { cn, toGermanNumber } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import IngredientAdjustBanner from './ingredient-adjust-banner';
+import { DailyPlan, MealType, RecipeIngredient } from '@/lib/types';
 
-export default function IngredientList({ recipeId }: { recipeId: string }) {
+interface IngredientListProps {
+    recipeId: string;
+    dailyPlan: DailyPlan | null;
+    currentMealType: MealType;
+}
+
+export default function IngredientList({ recipeId, dailyPlan, currentMealType }: IngredientListProps) {
     // States
     const { data, isLoading, error } = useRecipe(recipeId);
-    const [editingIngredientId, setEditingIngredientId] = useState<
-        string | null
-    >(null);
-    const [originalValues, setOriginalValues] = useState<
-        Record<string, number>
-    >({});
-    const [changedValues, setChangedValues] = useState<Record<string, number>>(
-        {},
-    );
+    const { adjustRecipe, isLoading: isAdjusting, error: adjustmentError } = useRecipeAdjustment();
+    const [editingIngredientId, setEditingIngredientId] = useState<string | null>(null);
+    const [originalValues, setOriginalValues] = useState<Record<string, number>>({});
+    const [changedValues, setChangedValues] = useState<Record<string, number>>({});
     const [shakeBanner, setShakeBanner] = useState(false);
 
     // Hooks
@@ -31,6 +34,7 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
             setChangedValues(values);
         }
     }, [data]);
+
     useEffect(() => {
         if (editingIngredientId !== null && shakeBanner) {
             setTimeout(() => {
@@ -67,37 +71,57 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
             [ingredientId]: value,
         }));
 
-        setEditingIngredientId(isModified ? ingredientId : null);        
+        setEditingIngredientId(isModified ? ingredientId : null);
     }
 
     // Handle input blur event
     function handleBlur(ingredientId: string, value: number) {
-        // If the value is the same as original after editing, clear the editing state
         if (value === originalValues[ingredientId]) {
             setEditingIngredientId(null);
         }
     }
 
     // Handle banner yes event
-    function handleIngredientAdjustment(ingredientId: string) {
-        setShakeBanner(false);
+    async function handleIngredientAdjustment(ingredientId: string) {
+        console.log("test")
+        if (!data || !dailyPlan || !currentMealType) return;
+        console.log("test2")
 
-        // TODO: Fetch adjustment plan and apply it
+        const changedIngredient = data.ingredients.find(
+            (i) => i.ingredient.id === ingredientId
+        );
 
-        setChangedValues((prev) => ({
-            ...prev,
-            [ingredientId]: originalValues[ingredientId],
-        }));
-        setEditingIngredientId(null);
+        if (!changedIngredient) return;
+
+        try {
+            const result = await adjustRecipe(
+                data,
+                currentMealType,
+                dailyPlan,
+                changedIngredient
+            );
+
+            if (result) {
+                // Update the values with the adjusted amounts
+                const newValues = { ...changedValues };
+                result.adjustedIngredients.forEach((adjusted: RecipeIngredient) => {
+                    newValues[adjusted.ingredient.id] = adjusted.amount;
+                });
+                setChangedValues(newValues);
+            }
+        } catch (error) {
+            console.error('Failed to adjust recipe:', error);
+            // Optionally show error to user
+        } finally {
+            setShakeBanner(false);
+            setEditingIngredientId(null);
+        }
     }
 
     function handleBannerNo() {
         setShakeBanner(false);
-        // Wert zurücksetzen, wenn Banner geschlossen wird
         setEditingIngredientId(null);
     }
-
-    // TODO: If "Hinzufügen" button is clicked in the parent component, the changedValues' calories should be calculated and added to the total macros
 
     return (
         <div className='md:grid grid-cols-2 gap-8'>
@@ -107,16 +131,14 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
                         {data.ingredients.map((ingredient, index) => {
                             const isLocked =
                                 editingIngredientId !== null &&
-                                editingIngredientId !==
-                                    ingredient.ingredient.id;
+                                editingIngredientId !== ingredient.ingredient.id;
                             return (
                                 <TableRow key={index}>
                                     <TableCell className='flex items-center text-center w-20'>
                                         <Input
                                             className={cn(
                                                 'p-0 h-8 w-16 text-center border-none shadow-none bg-zinc-300',
-                                                isLocked &&
-                                                    'bg-zinc-100 text-zinc-500',
+                                                isLocked && 'bg-zinc-100 text-zinc-500',
                                             )}
                                             type='number'
                                             id={ingredient.ingredient.id}
@@ -124,23 +146,20 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
                                             min={1}
                                             readOnly={isLocked}
                                             onClick={() => {
-                                                if (isLocked)
-                                                    setShakeBanner(true);
+                                                if (isLocked) setShakeBanner(true);
                                             }}
                                             onChange={(e) => {
                                                 if (!isLocked) {
                                                     changeIngredientAmount(
                                                         Number(e.target.value),
-                                                        ingredient.ingredient
-                                                            .id,
+                                                        ingredient.ingredient.id,
                                                     );
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (!isLocked) {
                                                     handleBlur(
-                                                        ingredient.ingredient
-                                                            .id,
+                                                        ingredient.ingredient.id,
                                                         Number(e.target.value),
                                                     );
                                                 }
@@ -165,9 +184,12 @@ export default function IngredientList({ recipeId }: { recipeId: string }) {
                 {showBanner && (
                     <IngredientAdjustBanner
                         shake={shakeBanner}
-                        onYes={() =>
-                            handleIngredientAdjustment(editingIngredientId!)
-                        }
+                        isLoading={isAdjusting}
+                        onYes={async () => {
+                            if (editingIngredientId) {
+                                await handleIngredientAdjustment(editingIngredientId);
+                            }
+                        }}
                         onNo={handleBannerNo}
                     />
                 )}

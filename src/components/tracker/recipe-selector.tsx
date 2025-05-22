@@ -15,15 +15,25 @@ import RecipeList from './recipe-list';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Ban, Plus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+import { DailyPlan, MealType, Recipe } from '@/lib/types';
+import { useDailyPlanStore } from '@/stores/daily-tracker';
+import { useRecipe } from '@/hooks/useRecipeById';
+
+interface RecipeSelectorProps {
+    typeName: string;
+    children: ReactNode;
+    currentMealType: MealType;
+}
 
 export default function RecipeSelector({
     typeName,
     children,
-}: {
-    typeName: string;
-    children: ReactNode;
-}) {
+    currentMealType,
+}: RecipeSelectorProps) {
+    const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
+    const addMeal = useDailyPlanStore((state) => state.addMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
+    const { data: recipe } = useRecipe(recipeId || '');
 
     const handleRecipeSelection = (recipeId: string) => {
         setRecipeId(recipeId);
@@ -33,6 +43,17 @@ export default function RecipeSelector({
         setRecipeId(undefined);
     };
 
+    const handleAddMeal = () => {
+        if (!recipe || !dailyPlan) return;
+
+        addMeal({
+            type: currentMealType,
+            recipe,
+        });
+
+        resetRecipeSelection();
+    };
+
     const scrollAreaSize = 400;
 
     return (
@@ -40,8 +61,10 @@ export default function RecipeSelector({
             <DrawerTrigger className='w-full h-full cursor-pointer'>
                 {children}
             </DrawerTrigger>
-            <DrawerContent style={{ height: `${scrollAreaSize + 122}px` }} className='md:px-32 xl:px-72 2xl:px-96'>
-                <DrawerHeader className="pb-0">
+            <DrawerContent
+                style={{ height: `${scrollAreaSize + 122}px` }}
+                className='md:px-32 xl:px-72 2xl:px-96'>
+                <DrawerHeader className='pb-0'>
                     <DrawerTitle className='text-xl'>
                         {typeName} hinzufügen
                     </DrawerTitle>
@@ -53,19 +76,23 @@ export default function RecipeSelector({
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.3 }}>
-                                    
-                                    <DrawerClose asChild><button
-                                    onClick={() => setRecipeId(undefined)}
-                                    className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
-                                    <ArrowLeft size={16} /> Zurück zur
-                                    Tagesübersicht
-                                </button></DrawerClose>
+                                <DrawerClose asChild>
+                                    <button
+                                        onClick={() => setRecipeId(undefined)}
+                                        className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
+                                        <ArrowLeft size={16} /> Zurück zur
+                                        Tagesübersicht
+                                    </button>
+                                </DrawerClose>
                                 <DrawerDescription>
                                     Wähle ein Rezept aus:
                                 </DrawerDescription>
-                                <ScrollArea 
-  style={{ height: `${scrollAreaSize}px` }} className='pr-4 z-10'>
-                                    <RecipeList onSelect={handleRecipeSelection} />
+                                <ScrollArea
+                                    style={{ height: `${scrollAreaSize}px` }}
+                                    className='pr-4 z-10'>
+                                    <RecipeList
+                                        onSelect={handleRecipeSelection}
+                                    />
                                 </ScrollArea>
                             </motion.div>
                         ) : (
@@ -82,7 +109,11 @@ export default function RecipeSelector({
                                     Rezeptauswahl
                                 </button>
                                 <DrawerDescription>Zutaten:</DrawerDescription>
-                                <IngredientList recipeId={recipeId!} />
+                                <IngredientList 
+                                    recipeId={recipeId!} 
+                                    dailyPlan={dailyPlan}
+                                    currentMealType={currentMealType}
+                                />
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -94,9 +125,12 @@ export default function RecipeSelector({
                                 <Ban /> Abbrechen
                             </Button>
                         </DrawerClose>
-                            <Button variant='default' className='ml-2'>
-                                <Plus /> Hinzufügen
-                            </Button>
+                        <Button 
+                            variant='default' 
+                            className='ml-2'
+                            onClick={handleAddMeal}>
+                            <Plus /> Hinzufügen
+                        </Button>
                     </DrawerFooter>
                 )}
             </DrawerContent>

@@ -12,6 +12,7 @@ import {
     YAxis,
     ResponsiveContainer,
     Label,
+    Tooltip,
 } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +23,7 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import Macronutrients from './macro-view';
-import { CALORIES_TARGET } from '@/lib/recipes';
+import { useDailyPlanStore } from '@/stores/daily-tracker';
 
 const totalCalorieChartConfig = {
     eaten: {
@@ -35,39 +36,28 @@ const totalCalorieChartConfig = {
     },
 } satisfies ChartConfig;
 
-export default function TotalCalories({
-    totalCalories,
-    fats,
-    carbohydrates,
-    protein,
-}: {
-    totalCalories: number;
-    fats: number;
-    carbohydrates: number;
-    protein: number;
-}) {
-    // TODO: Demo-Daten mit tatsächlichen Daten anbinden; Localstorage als Datenbank
-    const totalCalorieData =
-        totalCalories > CALORIES_TARGET
-            ? [
-                  {
-                      type: 'Gegessen',
-                      value: CALORIES_TARGET,
-                      fill: 'var(--chart-1)',
-                  },
-              ]
-            : [
-                  {
-                      type: 'Gegessen',
-                      value: totalCalories,
-                      fill: 'var(--chart-1)',
-                  },
-                  {
-                      type: 'Übrig',
-                      value: CALORIES_TARGET - totalCalories,
-                      fill: 'var(--chart-empty)',
-                  },
-              ];
+export default function TotalCalories() {
+    const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
+
+    if (!dailyPlan) return null;
+
+    const { totalMacros, goal } = dailyPlan;
+    const totalCalories = totalMacros 
+        ? totalMacros.protein * 4 + totalMacros.carbs * 4 + totalMacros.fat * 9
+        : 0;
+
+    const totalCalorieData = [
+        {
+            type: 'Gegessen',
+            value: totalCalories,
+            fill: 'var(--chart-1)',
+        },
+        {
+            type: 'Übrig',
+            value: Math.max(0, goal.calories - totalCalories),
+            fill: 'var(--chart-empty)',
+        },
+    ];
 
     return (
         <Card className='flex flex-col'>
@@ -83,21 +73,20 @@ export default function TotalCalories({
                         className='w-full h-56 mb-4'>
                         <ResponsiveContainer width='100%' height={220}>
                             <PieChart>
-                                <ChartTooltip
-                                    cursor={false}
-                                    content={<ChartTooltipContent hideLabel />}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Pie
                                     data={totalCalorieData}
                                     dataKey='value'
                                     nameKey='type'
                                     innerRadius={60}
                                     outerRadius={100}
-                                    strokeWidth={5}
                                     startAngle={90}
                                     endAngle={-270}
                                     cornerRadius={12}
-                                    isAnimationActive={false}>
+                                    isAnimationActive={false}
+                                    stroke="var(--border)" 
+                                    paddingAngle={2}
+                                    strokeWidth={2}>
                                     <Label
                                         position='center'
                                         content={({ viewBox }) => {
@@ -116,7 +105,7 @@ export default function TotalCalories({
                                                             x={viewBox.cx}
                                                             y={viewBox.cy}
                                                             className='fill-foreground text-3xl font-bold'>
-                                                            {totalCalories.toLocaleString()}
+                                                            {Math.round(totalCalories).toLocaleString()}
                                                         </tspan>
                                                         <tspan
                                                             x={viewBox.cx}
@@ -139,12 +128,27 @@ export default function TotalCalories({
                 </div>
 
                 <Macronutrients
-                    carbs={100}
-                    protein={32}
-                    fat={60}
+                    carbs={totalMacros?.carbs || 0}
+                    protein={totalMacros?.protein || 0}
+                    fat={totalMacros?.fat || 0}
                     className='max-w-md'
                 />
             </CardContent>
         </Card>
     );
 }
+
+function CustomTooltip({ active, payload }: any) {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-background border rounded-lg p-2 shadow-lg">
+                <p className="font-medium">{data.type}</p>
+                <p className="text-sm text-muted-foreground">
+                    {Math.round(data.value)} kcal
+                </p>
+            </div>
+        );
+    }
+    return null;
+};

@@ -10,21 +10,38 @@ import {
 } from '../ui/card';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
 import RecipeSelector from './recipe-selector';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 export default function MealSelector() {
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
-    const setDailyPlan = useDailyPlanStore((state) => state.setDailyPlan);
     const loadDailyPlan = useDailyPlanStore((state) => state.loadDailyPlan);
+    const removeMeal = useDailyPlanStore((state) => state.removeMeal);
 
     const [breakfast, setBreakfast] = useState<Meal>();
     const [lunch, setLunch] = useState<Meal>();
     const [dinner, setDinner] = useState<Meal>();
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        loadDailyPlan();
-        if (dailyPlan)
+        const load = async () => {
+            setIsLoading(true);
+            await loadDailyPlan();
+            setIsLoading(false);
+        };
+        load();
+    }, [loadDailyPlan]);
+
+    useEffect(() => {
+        if (dailyPlan) {
+            // Reset all meals first
+            setBreakfast(undefined);
+            setLunch(undefined);
+            setDinner(undefined);
+
+            // Set meals based on type
             dailyPlan.meals.forEach((meal) => {
                 switch (meal.type) {
                     case MealType.BREAKFAST:
@@ -40,7 +57,12 @@ export default function MealSelector() {
                         console.error('Meal that was not the right type.');
                 }
             });
-    }, [loadDailyPlan]);
+        }
+    }, [dailyPlan]);
+
+    const handleRemoveMeal = (type: MealType) => {
+        removeMeal(type);
+    };
 
     return (
         <Card>
@@ -52,9 +74,27 @@ export default function MealSelector() {
             </CardHeader>
             <CardContent>
                 <div className='grid grid-cols-3 max-md:grid-cols-1 gap-4'>
-                    <MealDisplay typeName='Frühstück' content={breakfast} />
-                    <MealDisplay typeName='Mittagessen' content={lunch} />
-                    <MealDisplay typeName='Abendessen' content={dinner} />
+                    <MealDisplay 
+                        type={MealType.BREAKFAST} 
+                        typeName='Frühstück' 
+                        content={breakfast} 
+                        onRemove={handleRemoveMeal}
+                        isLoading={isLoading}
+                    />
+                    <MealDisplay 
+                        type={MealType.LUNCH} 
+                        typeName='Mittagessen' 
+                        content={lunch} 
+                        onRemove={handleRemoveMeal}
+                        isLoading={isLoading}
+                    />
+                    <MealDisplay 
+                        type={MealType.DINNER} 
+                        typeName='Abendessen' 
+                        content={dinner} 
+                        onRemove={handleRemoveMeal}
+                        isLoading={isLoading}
+                    />
                 </div>
             </CardContent>
         </Card>
@@ -62,19 +102,37 @@ export default function MealSelector() {
 }
 
 function MealDisplay({
+    type,
     typeName,
     content,
+    onRemove,
+    isLoading,
 }: {
+    type: MealType;
     typeName: string;
     content: Meal | undefined;
+    onRemove: (type: MealType) => void;
+    isLoading: boolean;
 }) {
     return (
         <div key={content?.type || typeName}>
-            <div className='flex flex-col justify-center items-center rounded-lg border shadow-inner w-full h-32'>
-                {content ? (
-                    <p className='font-semibold'>{content.recipe.name}</p>
+            <div className='flex flex-col justify-center items-center rounded-lg border shadow-inner w-full h-32 relative'>
+                {isLoading ? (
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                ) : content ? (
+                    <div className="flex flex-col items-center gap-2">
+                        <p className='font-semibold'>{content.recipe.name}</p>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive/90"
+                            onClick={() => onRemove(type)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
                 ) : (
-                    <RecipeSelector typeName={typeName}>
+                    <RecipeSelector typeName={typeName} currentMealType={type}>
                         <Plus size={48} className='text-zinc-300 mx-auto' />
                     </RecipeSelector>
                 )}

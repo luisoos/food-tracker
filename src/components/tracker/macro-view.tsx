@@ -51,8 +51,8 @@ export default function Macronutrients({
                                 }}
                             />
                             <div className='absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium'>
-                                {toGermanNumber(macro.consumed)}g von{' '}
-                                {toGermanNumber(macro.total)}g
+                                {toGermanNumber(macro.consumed, 0)}g von{' '}
+                                {toGermanNumber(macro.total, 0)}g
                             </div>
                         </div>
                     </div>

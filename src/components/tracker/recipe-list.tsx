@@ -119,9 +119,9 @@ export default function RecipeList({
                                 </div>
                             </div>
                         </div>
-                            <div className='mt-auto text-sm font-medium text-center'>
-                                {Math.round(totalCalories)} kcal
-                            </div>
+                        <div className='mt-auto text-sm font-medium text-center'>
+                            {Math.round(totalCalories)} kcal
+                        </div>
                     </div>
                 );
             })}

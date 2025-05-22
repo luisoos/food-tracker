@@ -3,6 +3,7 @@ import {
     Recipe,
     DailyPlan,
     RecipeIngredient,
+    MealType,
 } from '@/lib/types';
 import { useState, useCallback } from 'react';
 
@@ -15,8 +16,9 @@ export function useRecipeAdjustment() {
     const adjustRecipe = useCallback(
         async (
             recipe: Recipe,
+            currentMealType: MealType,
+            dailyPlan: DailyPlan,
             changedIngredient?: RecipeIngredient,
-            dailyPlan?: DailyPlan,
         ) => {
             setIsLoading(true);
             setError(null);
@@ -31,6 +33,7 @@ export function useRecipeAdjustment() {
                         recipe,
                         changedIngredient,
                         dailyPlan,
+                        currentMealType,
                     }),
                 });
 

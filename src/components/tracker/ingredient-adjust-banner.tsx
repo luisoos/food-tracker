@@ -1,17 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, useAnimation } from 'framer-motion';
-import { X, Check } from 'lucide-react';
+import { X, Check, Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface IngredientAdjustBannerProps {
     shake: boolean;
+    isLoading?: boolean;
     onYes: () => void;
     onNo: () => void;
 }
 
 export default function IngredientAdjustBanner({
     shake,
+    isLoading = false,
     onYes,
     onNo,
 }: IngredientAdjustBannerProps) {
@@ -41,11 +43,17 @@ export default function IngredientAdjustBanner({
             className='flex flex-col items-center justify-center max-w-md mx-auto mt-4'>
             <p className='font-medium mb-4'>Mangel Ausgleich berechnen?</p>
             <div className='flex gap-4'>
-                <OptionButton variant='disagree' onClick={onNo}>
+                <OptionButton 
+                    variant='disagree' 
+                    onClick={onNo}
+                    disabled={isLoading}>
                     <X />
                 </OptionButton>
-                <OptionButton variant='agree' onClick={onYes}>
-                    <Check />
+                <OptionButton 
+                    variant='agree' 
+                    onClick={onYes}
+                    disabled={isLoading}>
+                    {isLoading ? <Loader2 className="animate-spin" /> : <Check />}
                 </OptionButton>
             </div>
         </motion.div>
@@ -56,10 +64,12 @@ function OptionButton({
     variant,
     onClick,
     children,
+    disabled,
 }: {
     variant: 'agree' | 'disagree';
     onClick: () => void;
     children: React.ReactNode;
+    disabled?: boolean;
 }) {
     return (
         <Button
@@ -68,8 +78,10 @@ function OptionButton({
                 variant === 'agree'
                     ? 'bg-green-700 hover:bg-green-600'
                     : 'bg-red-700 hover:bg-red-600',
+                disabled && 'opacity-50 cursor-not-allowed'
             )}
-            onClick={onClick}>
+            onClick={onClick}
+            disabled={disabled}>
             {children}
         </Button>
     );
