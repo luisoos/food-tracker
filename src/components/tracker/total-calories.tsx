@@ -140,7 +140,15 @@ export default function TotalCalories() {
     );
 }
 
-function CustomTooltip({ active, payload }: any) {
+function CustomTooltip({
+    active,
+    payload,
+}: {
+    active?: boolean;
+    payload?: Array<{
+        payload: { type: string; value: number };
+    }>;
+}) {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
