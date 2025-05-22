@@ -74,24 +74,24 @@ export default function MealSelector() {
             </CardHeader>
             <CardContent>
                 <div className='grid grid-cols-3 max-md:grid-cols-1 gap-4'>
-                    <MealDisplay 
-                        type={MealType.BREAKFAST} 
-                        typeName='Frühstück' 
-                        content={breakfast} 
+                    <MealDisplay
+                        type={MealType.BREAKFAST}
+                        typeName='Frühstück'
+                        content={breakfast}
                         onRemove={handleRemoveMeal}
                         isLoading={isLoading}
                     />
-                    <MealDisplay 
-                        type={MealType.LUNCH} 
-                        typeName='Mittagessen' 
-                        content={lunch} 
+                    <MealDisplay
+                        type={MealType.LUNCH}
+                        typeName='Mittagessen'
+                        content={lunch}
                         onRemove={handleRemoveMeal}
                         isLoading={isLoading}
                     />
-                    <MealDisplay 
-                        type={MealType.DINNER} 
-                        typeName='Abendessen' 
-                        content={dinner} 
+                    <MealDisplay
+                        type={MealType.DINNER}
+                        typeName='Abendessen'
+                        content={dinner}
                         onRemove={handleRemoveMeal}
                         isLoading={isLoading}
                     />
@@ -118,18 +118,20 @@ function MealDisplay({
         <div key={content?.type || typeName}>
             <div className='flex flex-col justify-center items-center rounded-lg border shadow-inner w-full h-32 relative'>
                 {isLoading ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
                 ) : content ? (
-                    <div className="flex flex-col items-center gap-2">
-                        <p className='font-semibold'>{content.recipe.name}</p>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive/90"
-                            onClick={() => onRemove(type)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
+                    <div className='flex flex-col items-center gap-2'>
+                        <div
+                            className='text-destructive hover:text-destructive/90 cursor-pointer'
+                            onClick={() => onRemove(type)}>
+                            <Trash2
+                                className='absolute top-2 right-2'
+                                size={16}
+                            />
+                        </div>
+                        <p className='mx-2 text-center font-semibold'>
+                            {content.recipe.name}
+                        </p>
                     </div>
                 ) : (
                     <RecipeSelector typeName={typeName} currentMealType={type}>
