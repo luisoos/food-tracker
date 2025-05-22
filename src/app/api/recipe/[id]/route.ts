@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { NextApiRequest } from 'next';
 import { recipes } from '@/lib/recipes';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } },
+    context: { params: { id: string } }
 ) {
-    const { id } = await params;
+    const { id } = context.params;
     const recipe = Object.values(recipes).find((r) => r.id === id);
     if (!recipe) {
         return NextResponse.json(
