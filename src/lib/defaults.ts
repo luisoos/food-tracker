@@ -12,7 +12,9 @@ const DEFAULT_DAILY_GOAL = {
     macros: DEFAULT_MACRO_GOAL,
 };
 
-export function createDefaultDailyPlan(date: string = new Date().toISOString().split('T')[0]): DailyPlan {
+export function createDefaultDailyPlan(
+    date: string = new Date().toISOString().split('T')[0],
+): DailyPlan {
     return {
         date,
         goal: DEFAULT_DAILY_GOAL,
@@ -28,4 +30,4 @@ export function createDefaultDailyPlan(date: string = new Date().toISOString().s
             fat: DEFAULT_MACRO_GOAL.fat,
         },
     };
-} 
+}

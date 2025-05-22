@@ -109,8 +109,8 @@ export default function RecipeSelector({
                                     Rezeptauswahl
                                 </button>
                                 <DrawerDescription>Zutaten:</DrawerDescription>
-                                <IngredientList 
-                                    recipeId={recipeId!} 
+                                <IngredientList
+                                    recipeId={recipeId!}
                                     dailyPlan={dailyPlan}
                                     currentMealType={currentMealType}
                                 />
@@ -125,8 +125,8 @@ export default function RecipeSelector({
                                 <Ban /> Abbrechen
                             </Button>
                         </DrawerClose>
-                        <Button 
-                            variant='default' 
+                        <Button
+                            variant='default'
                             className='ml-2'
                             onClick={handleAddMeal}>
                             <Plus /> Hinzufügen

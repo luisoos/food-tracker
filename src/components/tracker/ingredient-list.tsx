@@ -14,13 +14,27 @@ interface IngredientListProps {
     currentMealType: MealType;
 }
 
-export default function IngredientList({ recipeId, dailyPlan, currentMealType }: IngredientListProps) {
+export default function IngredientList({
+    recipeId,
+    dailyPlan,
+    currentMealType,
+}: IngredientListProps) {
     // States
     const { data, isLoading, error } = useRecipe(recipeId);
-    const { adjustRecipe, isLoading: isAdjusting, error: adjustmentError } = useRecipeAdjustment();
-    const [editingIngredientId, setEditingIngredientId] = useState<string | null>(null);
-    const [originalValues, setOriginalValues] = useState<Record<string, number>>({});
-    const [changedValues, setChangedValues] = useState<Record<string, number>>({});
+    const {
+        adjustRecipe,
+        isLoading: isAdjusting,
+        error: adjustmentError,
+    } = useRecipeAdjustment();
+    const [editingIngredientId, setEditingIngredientId] = useState<
+        string | null
+    >(null);
+    const [originalValues, setOriginalValues] = useState<
+        Record<string, number>
+    >({});
+    const [changedValues, setChangedValues] = useState<Record<string, number>>(
+        {},
+    );
     const [shakeBanner, setShakeBanner] = useState(false);
 
     // Hooks
@@ -83,12 +97,12 @@ export default function IngredientList({ recipeId, dailyPlan, currentMealType }:
 
     // Handle banner yes event
     async function handleIngredientAdjustment(ingredientId: string) {
-        console.log("test")
+        console.log('test');
         if (!data || !dailyPlan || !currentMealType) return;
-        console.log("test2")
+        console.log('test2');
 
         const changedIngredient = data.ingredients.find(
-            (i) => i.ingredient.id === ingredientId
+            (i) => i.ingredient.id === ingredientId,
         );
 
         if (!changedIngredient) return;
@@ -98,15 +112,17 @@ export default function IngredientList({ recipeId, dailyPlan, currentMealType }:
                 data,
                 currentMealType,
                 dailyPlan,
-                changedIngredient
+                changedIngredient,
             );
 
             if (result) {
                 // Update the values with the adjusted amounts
                 const newValues = { ...changedValues };
-                result.adjustedIngredients.forEach((adjusted: RecipeIngredient) => {
-                    newValues[adjusted.ingredient.id] = adjusted.amount;
-                });
+                result.adjustedIngredients.forEach(
+                    (adjusted: RecipeIngredient) => {
+                        newValues[adjusted.ingredient.id] = adjusted.amount;
+                    },
+                );
                 setChangedValues(newValues);
             }
         } catch (error) {
@@ -131,14 +147,16 @@ export default function IngredientList({ recipeId, dailyPlan, currentMealType }:
                         {data.ingredients.map((ingredient, index) => {
                             const isLocked =
                                 editingIngredientId !== null &&
-                                editingIngredientId !== ingredient.ingredient.id;
+                                editingIngredientId !==
+                                    ingredient.ingredient.id;
                             return (
                                 <TableRow key={index}>
                                     <TableCell className='flex items-center text-center w-20'>
                                         <Input
                                             className={cn(
                                                 'p-0 h-8 w-16 text-center border-none shadow-none bg-zinc-300',
-                                                isLocked && 'bg-zinc-100 text-zinc-500',
+                                                isLocked &&
+                                                    'bg-zinc-100 text-zinc-500',
                                             )}
                                             type='number'
                                             id={ingredient.ingredient.id}
@@ -146,20 +164,23 @@ export default function IngredientList({ recipeId, dailyPlan, currentMealType }:
                                             min={1}
                                             readOnly={isLocked}
                                             onClick={() => {
-                                                if (isLocked) setShakeBanner(true);
+                                                if (isLocked)
+                                                    setShakeBanner(true);
                                             }}
                                             onChange={(e) => {
                                                 if (!isLocked) {
                                                     changeIngredientAmount(
                                                         Number(e.target.value),
-                                                        ingredient.ingredient.id,
+                                                        ingredient.ingredient
+                                                            .id,
                                                     );
                                                 }
                                             }}
                                             onBlur={(e) => {
                                                 if (!isLocked) {
                                                     handleBlur(
-                                                        ingredient.ingredient.id,
+                                                        ingredient.ingredient
+                                                            .id,
                                                         Number(e.target.value),
                                                     );
                                                 }
@@ -187,7 +208,9 @@ export default function IngredientList({ recipeId, dailyPlan, currentMealType }:
                         isLoading={isAdjusting}
                         onYes={async () => {
                             if (editingIngredientId) {
-                                await handleIngredientAdjustment(editingIngredientId);
+                                await handleIngredientAdjustment(
+                                    editingIngredientId,
+                                );
                             }
                         }}
                         onNo={handleBannerNo}

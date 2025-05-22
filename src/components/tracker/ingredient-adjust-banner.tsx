@@ -43,17 +43,21 @@ export default function IngredientAdjustBanner({
             className='flex flex-col items-center justify-center max-w-md mx-auto mt-4'>
             <p className='font-medium mb-4'>Mangel Ausgleich berechnen?</p>
             <div className='flex gap-4'>
-                <OptionButton 
-                    variant='disagree' 
+                <OptionButton
+                    variant='disagree'
                     onClick={onNo}
                     disabled={isLoading}>
                     <X />
                 </OptionButton>
-                <OptionButton 
-                    variant='agree' 
+                <OptionButton
+                    variant='agree'
                     onClick={onYes}
                     disabled={isLoading}>
-                    {isLoading ? <Loader2 className="animate-spin" /> : <Check />}
+                    {isLoading ? (
+                        <Loader2 className='animate-spin' />
+                    ) : (
+                        <Check />
+                    )}
                 </OptionButton>
             </div>
         </motion.div>
@@ -78,7 +82,7 @@ function OptionButton({
                 variant === 'agree'
                     ? 'bg-green-700 hover:bg-green-600'
                     : 'bg-red-700 hover:bg-red-600',
-                disabled && 'opacity-50 cursor-not-allowed'
+                disabled && 'opacity-50 cursor-not-allowed',
             )}
             onClick={onClick}
             disabled={disabled}>

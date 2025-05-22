@@ -15,7 +15,7 @@ type Store = {
 const calculateTotalMacros = (meals: Meal[]): Macros => {
     return meals.reduce(
         (acc, meal) => {
-            const recipe = meal.adjustedIngredients 
+            const recipe = meal.adjustedIngredients
                 ? { ...meal.recipe, ingredients: meal.adjustedIngredients }
                 : meal.recipe;
 
@@ -27,7 +27,7 @@ const calculateTotalMacros = (meals: Meal[]): Macros => {
             });
             return acc;
         },
-        { protein: 0, carbs: 0, fat: 0 }
+        { protein: 0, carbs: 0, fat: 0 },
     );
 };
 
@@ -81,7 +81,7 @@ export const useDailyPlanStore = create<Store>((set, get) => ({
 
         const updatedPlan = {
             ...currentPlan,
-            meals: currentPlan.meals.filter(meal => meal.type !== mealType),
+            meals: currentPlan.meals.filter((meal) => meal.type !== mealType),
         };
 
         // Update total macros

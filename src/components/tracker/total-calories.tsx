@@ -42,7 +42,7 @@ export default function TotalCalories() {
     if (!dailyPlan) return null;
 
     const { totalMacros, goal } = dailyPlan;
-    const totalCalories = totalMacros 
+    const totalCalories = totalMacros
         ? totalMacros.protein * 4 + totalMacros.carbs * 4 + totalMacros.fat * 9
         : 0;
 
@@ -84,7 +84,7 @@ export default function TotalCalories() {
                                     endAngle={-270}
                                     cornerRadius={12}
                                     isAnimationActive={false}
-                                    stroke="var(--border)" 
+                                    stroke='var(--border)'
                                     paddingAngle={2}
                                     strokeWidth={2}>
                                     <Label
@@ -105,7 +105,9 @@ export default function TotalCalories() {
                                                             x={viewBox.cx}
                                                             y={viewBox.cy}
                                                             className='fill-foreground text-3xl font-bold'>
-                                                            {Math.round(totalCalories).toLocaleString()}
+                                                            {Math.round(
+                                                                totalCalories,
+                                                            ).toLocaleString()}
                                                         </tspan>
                                                         <tspan
                                                             x={viewBox.cx}
@@ -142,13 +144,13 @@ function CustomTooltip({ active, payload }: any) {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="bg-background border rounded-lg p-2 shadow-lg">
-                <p className="font-medium">{data.type}</p>
-                <p className="text-sm text-muted-foreground">
+            <div className='bg-background border rounded-lg p-2 shadow-lg'>
+                <p className='font-medium'>{data.type}</p>
+                <p className='text-sm text-muted-foreground'>
                     {Math.round(data.value)} kcal
                 </p>
             </div>
         );
     }
     return null;
-};
+}
