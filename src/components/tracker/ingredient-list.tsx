@@ -43,6 +43,7 @@ export default function IngredientList({
     const [currentValues, setCurrentValues] = useState<Record<string, number>>(
         {},
     );
+    const [reasons, setReasons] = useState<Record<string, string>>({});
     const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
 
@@ -113,15 +114,6 @@ export default function IngredientList({
         });
 
         setEditingIngredientId(isModified ? ingredientId : null);
-    }
-
-    // Helper function to extrat dirty values
-    function getDirtyValues(): Record<string, number> {
-        const dirtyValues: Record<string, number> = {};
-        dirtyFields.forEach((ingredientId) => {
-            dirtyValues[ingredientId] = currentValues[ingredientId];
-        });
-        return dirtyValues;
     }
 
     // Handle input blur event
