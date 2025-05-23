@@ -1,6 +1,7 @@
 import { DailyPlan, Macros, Meal, MealType } from '@/lib/types';
 import { create } from 'zustand';
 import { createDefaultDailyPlan } from '@/lib/defaults';
+import { calculateRecipeMacros } from '@/lib/algorithm/calculate';
 
 type Store = {
     dailyPlan: DailyPlan | null;
@@ -15,16 +16,22 @@ type Store = {
 const calculateTotalMacros = (meals: Meal[]): Macros => {
     return meals.reduce(
         (acc, meal) => {
-            const recipe = meal.adjustedIngredients
-                ? { ...meal.recipe, ingredients: meal.adjustedIngredients }
-                : meal.recipe;
+            // Use the recipe's already calculated totalMacros
+            if (meal.recipe.totalMacros) {
+                acc.protein += meal.recipe.totalMacros.protein;
+                acc.carbs += meal.recipe.totalMacros.carbs;
+                acc.fat += meal.recipe.totalMacros.fat;
+            } else {
+                // Fallback: calculate from ingredients if totalMacros not available
+                const recipe = meal.adjustedIngredients
+                    ? { ...meal.recipe, ingredients: meal.adjustedIngredients }
+                    : meal.recipe;
 
-            recipe.ingredients.forEach(({ ingredient, amount }) => {
-                const factor = amount / 100;
-                acc.protein += ingredient.macrosPer100g.protein * factor;
-                acc.carbs += ingredient.macrosPer100g.carbs * factor;
-                acc.fat += ingredient.macrosPer100g.fat * factor;
-            });
+                const macros = calculateRecipeMacros(recipe);
+                acc.protein += macros.protein;
+                acc.carbs += macros.carbs;
+                acc.fat += macros.fat;
+            }
             return acc;
         },
         { protein: 0, carbs: 0, fat: 0 },

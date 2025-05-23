@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/chart';
 import Macronutrients from './macro-view';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
+import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
 
 const totalCalorieChartConfig = {
     eaten: {
@@ -42,9 +43,12 @@ export default function TotalCalories() {
     if (!dailyPlan) return null;
 
     const { totalMacros, goal } = dailyPlan;
-    const totalCalories = totalMacros
-        ? totalMacros.protein * 4 + totalMacros.carbs * 4 + totalMacros.fat * 9
-        : 0;
+
+    if (!totalMacros) return;
+
+    console.log(dailyPlan)
+
+    const totalCalories = calculateCaloriesFromMacros(totalMacros);
 
     const totalCalorieData = [
         {

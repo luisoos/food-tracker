@@ -28,6 +28,7 @@ export function findBestIngredientsToAdjust(
     excludeIngredientId?: string,
 ): EvaluationResult {
     const adjustments: Adjustment[] = [];
+    const ingredientTotals: Record<string, number> = {}; // Track finale Mengen
 
     // Bestimme, welche Makros kompensiert werden müssen (nur signifikante Unterschiede)
     const macrosToCompensate: (keyof Macros)[] = [];
@@ -54,6 +55,11 @@ export function findBestIngredientsToAdjust(
                 ri.ingredient.id !== excludeIngredientId,
         )
         .forEach((ri) => {
+            // Initialisiere finale Menge mit Originalmenge
+            if (!ingredientTotals[ri.ingredient.id]) {
+                ingredientTotals[ri.ingredient.id] = ri.amount;
+            }
+
             macrosToCompensate.forEach((macro) => {
                 if (ri.ingredient.macrosPer100g[macro] === 0) return;
 
@@ -63,17 +69,25 @@ export function findBestIngredientsToAdjust(
                     Math.abs(macroDifference[macro] / macroPerGram) * direction;
 
                 // Menge begrenzen (max. 250% der Originalmenge)
-                const MAX_ADJUSTMENT_FACTOR = 2.5;
-                const originalAmount = ri.amount;
-                const clampedAmount = Math.max(
-                    -originalAmount * MAX_ADJUSTMENT_FACTOR,
-                    Math.min(
-                        requiredAmount,
-                        originalAmount * MAX_ADJUSTMENT_FACTOR,
-                    ),
-                );
+                // Neue finale Menge
+                const newTotalAmount = ingredientTotals[ri.ingredient.id] + requiredAmount;
 
-                if (Math.abs(clampedAmount) < 1) return; // Minimale Änderung ignorieren
+                const MAX_ADJUSTMENT_FACTOR = 2.5;
+                const maxAllowedAmount = ri.amount * MAX_ADJUSTMENT_FACTOR;
+                const minAllowedAmount = ri.amount * 0.1; // Mindestens 10%
+                
+                const clampedTotalAmount = Math.max(
+                    minAllowedAmount,
+                    Math.min(newTotalAmount, maxAllowedAmount)
+                );
+                
+                // Berechne tatsächliche Anpassung
+                const actualAdjustment = clampedTotalAmount - ingredientTotals[ri.ingredient.id];
+
+                if (Math.abs(actualAdjustment) < 1) return; // Minimale Änderung ignorieren
+
+                // Update finale Menge
+                ingredientTotals[ri.ingredient.id] = clampedTotalAmount;
 
                 const efficiency = calculateIngredientEfficiency(
                     ri.ingredient,
@@ -83,7 +97,7 @@ export function findBestIngredientsToAdjust(
                 adjustments.push({
                     ingredientId: ri.ingredient.id,
                     macro,
-                    amount: clampedAmount,
+                    amount: actualAdjustment,
                     efficiency,
                 });
             });

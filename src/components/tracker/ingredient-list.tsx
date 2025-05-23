@@ -4,26 +4,30 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '../ui/input';
 import Macronutrients from './macro-view';
 import { cn, toGermanNumber } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import IngredientAdjustBanner from './ingredient-adjust-banner';
 import {
     DailyPlan,
+    Macros,
     MealType,
     ParentAdjustment,
     RecipeIngredient,
 } from '@/lib/types';
 import IngredientAmountReason from './ingredient-amount-reason';
+import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
 
 interface IngredientListProps {
     recipeId: string;
     dailyPlan: DailyPlan | null;
     currentMealType: MealType;
+    onMacrosUpdate: (macros: Macros, totalCalories: number) => void;
 }
 
 export default function IngredientList({
     recipeId,
     dailyPlan,
     currentMealType,
+    onMacrosUpdate,
 }: IngredientListProps) {
     // States
     const { data, isLoading, error } = useRecipe(recipeId);
@@ -49,6 +53,7 @@ export default function IngredientList({
     const [shakeBanner, setShakeBanner] = useState(false);
 
     // Hooks
+    // State Management for input data
     useEffect(() => {
         if (data) {
             const values: Record<string, number> = {};
@@ -61,6 +66,38 @@ export default function IngredientList({
         }
     }, [data]);
 
+    // Calculate total macros
+    const totalMacros = useMemo(() => {
+        if (!data) return { carbs: 0, protein: 0, fat: 0 };
+        
+        return data.ingredients.reduce(
+            (acc, ingredient) => {
+                const currentAmount =
+                    currentValues[ingredient.ingredient.id] || ingredient.amount;
+                const factor = currentAmount / 100;
+                acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
+                acc.protein += ingredient.ingredient.macrosPer100g.protein * factor;
+                acc.fat += ingredient.ingredient.macrosPer100g.fat * factor;
+                return acc;
+            },
+            { carbs: 0, protein: 0, fat: 0 },
+        );
+    }, [data, currentValues]);
+    
+    // Calculate total calories
+    const totalCalories = useMemo(() => {
+        return calculateCaloriesFromMacros(totalMacros);
+    }, [totalMacros]);
+    
+    // Tell the macro details to the parent component
+    useEffect(() => {
+        onMacrosUpdate(totalMacros, totalCalories);
+    }, [totalMacros, totalCalories, onMacrosUpdate]);
+    
+    // Decide wether to show the ingredient adjustment banner
+    const showBanner = editingIngredientId !== null;
+
+    // Decide when to shake the adjustment banner to draw attention
     useEffect(() => {
         if (editingIngredientId !== null && shakeBanner) {
             setTimeout(() => {
@@ -68,27 +105,11 @@ export default function IngredientList({
             }, 1000);
         }
     }, [editingIngredientId, shakeBanner]);
-
-    const showBanner = editingIngredientId !== null;
-
-    // Render
+    
+    // Render logic
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
     if (!data) return <div>No recipe selected!</div>;
-
-    // Calculate total macros
-    const totalMacros = data.ingredients.reduce(
-        (acc, ingredient) => {
-            const currentAmount =
-                currentValues[ingredient.ingredient.id] || ingredient.amount;
-            const factor = currentAmount / 100;
-            acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
-            acc.protein += ingredient.ingredient.macrosPer100g.protein * factor;
-            acc.fat += ingredient.ingredient.macrosPer100g.fat * factor;
-            return acc;
-        },
-        { carbs: 0, protein: 0, fat: 0 },
-    );
 
     // Change ingredient amount
     function changeIngredientAmount(value: number, ingredientId: string) {

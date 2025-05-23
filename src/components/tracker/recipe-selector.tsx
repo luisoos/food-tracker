@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
 import {
     DrawerTrigger,
     DrawerContent,
@@ -15,7 +15,7 @@ import RecipeList from './recipe-list';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Ban, Plus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import { DailyPlan, MealType, Recipe } from '@/lib/types';
+import { DailyPlan, Macros, MealType, Recipe } from '@/lib/types';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useRecipe } from '@/hooks/useRecipeById';
 
@@ -34,6 +34,9 @@ export default function RecipeSelector({
     const addMeal = useDailyPlanStore((state) => state.addMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
+    const [ recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] = useState<Recipe>();
+    
+    const currentRecipe = recipeWithUpdatedMacros || recipe;
 
     const handleRecipeSelection = (recipeId: string) => {
         setRecipeId(recipeId);
@@ -44,15 +47,27 @@ export default function RecipeSelector({
     };
 
     const handleAddMeal = () => {
-        if (!recipe || !dailyPlan) return;
+        if (!currentRecipe || !dailyPlan) return;
 
         addMeal({
             type: currentMealType,
-            recipe,
+            recipe: currentRecipe,
         });
 
         resetRecipeSelection();
     };
+
+    const updateRecipeUsingDynamicValue = useCallback((macros: Macros, totalCalories: number) => {
+        if (!recipe) return;
+
+        const updatedRecipe: Recipe = {
+            ...recipe,
+            totalMacros: macros,
+            totalCalories: totalCalories
+        };
+
+        setRecipeWithUpdatedMacros(updatedRecipe);
+    }, [recipe]);
 
     const scrollAreaSize = 400;
 
@@ -113,6 +128,7 @@ export default function RecipeSelector({
                                     recipeId={recipeId!}
                                     dailyPlan={dailyPlan}
                                     currentMealType={currentMealType}
+                                    onMacrosUpdate={updateRecipeUsingDynamicValue}
                                 />
                             </motion.div>
                         )}
