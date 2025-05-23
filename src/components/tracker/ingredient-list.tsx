@@ -45,6 +45,9 @@ export default function IngredientList({
     const [changedValues, setChangedValues] = useState<Record<string, number>>(
         {},
     );
+    const [previousValues, setPreviousValues] = useState<Record<string, number>>(
+        {},
+    );
     const [currentValues, setCurrentValues] = useState<Record<string, number>>(
         {},
     );
@@ -62,6 +65,7 @@ export default function IngredientList({
                 values[ingredient.ingredient.id] = ingredient.amount;
             });
             setOriginalValues(values);
+            setPreviousValues(values);
             setChangedValues(values);
             setCurrentValues(values);
         }
@@ -155,14 +159,15 @@ export default function IngredientList({
         );
 
         if (!originalIngredient) return;
-
+        
         const modifiedRecipe = {
             ...data,
             ingredients: data.ingredients.map((ingredient) => ({
                 ...ingredient,
+                // NEU: Use currentValues to reflect all user modifications and previous adjustments
+                amount: previousValues[ingredient.ingredient.id],
                 ingredient: {
                     ...ingredient.ingredient,
-                    // All dirty fields are not flexible
                     isFlexible: dirtyFields.has(ingredient.ingredient.id)
                         ? false
                         : ingredient.ingredient.isFlexible,
@@ -199,8 +204,10 @@ export default function IngredientList({
                     },
                 );
                 delete newReasons[ingredientId];
+                // setOriginalValues(newValues);
                 setChangedValues(newValues);
                 setCurrentValues(newValues);
+                setPreviousValues(newValues)
                 setReasons(newReasons);
             } else if (result && !result.adjustments.success) {
                 const newReasons = { ...reasons };

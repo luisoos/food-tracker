@@ -35,16 +35,16 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
 
     // Fall 1: Benutzer hat Zutatenmenge manuell geändert
     if (changedIngredient) {
-        const original = recipe.ingredients.find(
+        const current = recipe.ingredients.find(
             (ri) => ri.ingredient.id === changedIngredient.ingredient.id,
         );
 
-        if (!original) throw new Error('Zutat nicht gefunden');
+        if (!current) throw new Error('Zutat nicht gefunden');
 
         // Berechne Unterschied zwischen alter und neuer Menge
         const macroDiff = calculateMacroDifference(
             changedIngredient.ingredient,
-            original.amount,
+            current.amount,
             changedIngredient.amount,
         );
 
@@ -97,7 +97,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
 
         if (changed) {
             changed.amount = changedIngredient.amount;
-            changed.originalAmount = original.amount;
+            changed.originalAmount = current.originalAmount || current.amount;
         }
     }
     // Fall 2: Automatischer Ausgleich von Tagesdefiziten
