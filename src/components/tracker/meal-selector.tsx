@@ -12,8 +12,11 @@ import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import RecipeSelector from './recipe-selector';
-import { Button } from '../ui/button';
-import { cn } from '@/lib/utils';
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from '../ui/hover-card';
 
 export default function MealSelector() {
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
@@ -70,7 +73,6 @@ export default function MealSelector() {
                 <CardTitle className='text-2xl font-semibold'>
                     Deine Mahlzeiten
                 </CardTitle>
-                <CardDescription>Card Description</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className='grid grid-cols-3 max-md:grid-cols-1 gap-4'>
@@ -121,14 +123,21 @@ function MealDisplay({
                     <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
                 ) : content ? (
                     <div className='flex flex-col items-center gap-2'>
-                        <div
-                            className='text-destructive hover:text-destructive/90 cursor-pointer'
-                            onClick={() => onRemove(type)}>
-                            <Trash2
-                                className='absolute top-2 right-2'
-                                size={16}
-                            />
-                        </div>
+                        <HoverCard>
+                            <HoverCardTrigger>
+                                <div
+                                    className='text-destructive hover:text-destructive/90 cursor-pointer'
+                                    onClick={() => onRemove(type)}>
+                                    <Trash2
+                                        className='absolute top-2 right-2'
+                                        size={16}
+                                    />
+                                </div>
+                            </HoverCardTrigger>
+                            <HoverCardContent align='start' className="-translate-y-6">
+                                {typeName} löschen
+                            </HoverCardContent>
+                        </HoverCard>
                         <p className='mx-2 text-center font-semibold'>
                             {content.recipe.name}
                         </p>

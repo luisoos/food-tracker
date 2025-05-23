@@ -43,9 +43,7 @@ export default function IngredientAmountReason({ reason }: { reason: string }) {
                     />
                 </motion.div>
             </HoverCardTrigger>
-            <HoverCardContent
-                align='start'
-                className='flex w-fit p-2 px-3 text-sm'>
+            <HoverCardContent align='start' className='flex'>
                 <BrainCircuit size={16} className='mr-1 mt-0.5' />
                 {ucfirst(reason)}
             </HoverCardContent>

@@ -154,9 +154,9 @@ function CustomTooltip({
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className='bg-background border rounded-lg p-2 shadow-lg'>
+            <div className='rounded-lg p-2 shadow-lg backdrop-blur-lg bg-white/20 border border-white/30'>
                 <p className='font-medium'>{data.type}</p>
-                <p className='text-sm text-muted-foreground'>
+                <p className='text-sm text-zinc-600'>
                     {Math.round(data.value)} kcal
                 </p>
             </div>

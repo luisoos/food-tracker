@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import {
     DrawerTrigger,
     DrawerContent,
@@ -32,9 +32,10 @@ export default function RecipeSelector({
 }: RecipeSelectorProps) {
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
     const addMeal = useDailyPlanStore((state) => state.addMeal);
-    const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
+    const [ recipeId, setRecipeId ] = useState<string | undefined>(undefined);
+    const [ recipeName, setRecipeName ] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
-    const [recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] =
+    const [ recipeWithUpdatedMacros, setRecipeWithUpdatedMacros ] =
         useState<Recipe>();
 
     const currentRecipe = recipeWithUpdatedMacros || recipe;
@@ -85,7 +86,7 @@ export default function RecipeSelector({
                 className='md:px-32 xl:px-72 2xl:px-96'>
                 <DrawerHeader className='pb-0'>
                     <DrawerTitle className='text-xl'>
-                        {typeName} hinzufügen
+                        {typeName} hinzufügen{ recipe && ': ' + recipe.name}
                     </DrawerTitle>
                     <AnimatePresence mode='wait'>
                         {!recipeId ? (

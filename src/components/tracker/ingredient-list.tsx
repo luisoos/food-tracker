@@ -121,11 +121,12 @@ export default function IngredientList({
     // Change ingredient amount
     function changeIngredientAmount(value: number, ingredientId: string) {
         const isModified = value !== originalValues[ingredientId];
-        const isRevertingToOriginal = value === originalValues[ingredientId] && 
-                                      currentValues[ingredientId] !== originalValues[ingredientId];
-    
+        const isRevertingToOriginal =
+            value === originalValues[ingredientId] &&
+            currentValues[ingredientId] !== originalValues[ingredientId];
+
         setEditingIngredientId(ingredientId);
-    
+
         // NEW: Set pending reset flag for revert detection
         // INTENT: Track when user is reverting to original value to trigger full reset
         if (isRevertingToOriginal) {
@@ -135,17 +136,17 @@ export default function IngredientList({
         } else {
             setPendingResetId(ingredientId);
         }
-    
+
         setChangedValues((prev) => ({
             ...prev,
             [ingredientId]: value,
         }));
-    
+
         setCurrentValues((prev) => ({
             ...prev,
             [ingredientId]: value,
         }));
-    
+
         setDirtyFields((prev) => {
             const newSet = new Set(prev);
             if (isModified) {
@@ -158,8 +159,8 @@ export default function IngredientList({
     }
 
     // Handle banner yes event
-    // NEW: Enhanced adjustment handler with revert detection
-    // INTENT: Handle both normal adjustments and revert-to-original scenarios
+    // Enhanced adjustment handler with revert detection
+    // Handle both normal adjustments and revert-to-original scenarios
     async function handleIngredientAdjustment(ingredientId: string) {
         if (!data || !dailyPlan || !currentMealType) return;
 
@@ -169,10 +170,10 @@ export default function IngredientList({
 
         if (!originalIngredient) return;
 
-        // NEW: Check if this is a revert to original value
-        // INTENT: Detect when user wants to reset ingredient to original amount
-        const isRevertToOriginal = changedValues[ingredientId] === originalValues[ingredientId] &&
-                                pendingResetId === ingredientId;
+        // Check if this is a revert to original value
+        const isRevertToOriginal =
+            changedValues[ingredientId] === originalValues[ingredientId] &&
+            pendingResetId === ingredientId;
 
         const modifiedRecipe = {
             ...data,
@@ -198,13 +199,17 @@ export default function IngredientList({
                 modifiedRecipe,
                 currentMealType,
                 dailyPlan,
-                isRevertToOriginal, // NEW: Pass revert flag to backend
+                isRevertToOriginal, // Pass revert flag to backend
                 changedIngredient,
             );
 
-            if (result && result.adjustments.success && Array.isArray(result.adjustments.data)) {
-                // NEW: Handle full reset if reverting to original
-                // INTENT: Reset all ingredients to original state when user reverts
+            if (
+                result &&
+                result.adjustments.success &&
+                Array.isArray(result.adjustments.data)
+            ) {
+                // Handle full reset if reverting to original
+                // Reset all ingredients to original state when user reverts
                 if (isRevertToOriginal) {
                     setChangedValues({ ...originalValues });
                     setCurrentValues({ ...originalValues });
@@ -213,10 +218,14 @@ export default function IngredientList({
                 } else {
                     const newValues = { ...currentValues };
                     const newReasons = { ...reasons };
-                    result.adjustments.data.forEach((adjusted: ParentAdjustment) => {
-                        newValues[adjusted.ingredientId] = Math.round(adjusted.newAmount);
-                        newReasons[adjusted.ingredientId] = adjusted.reason;
-                    });
+                    result.adjustments.data.forEach(
+                        (adjusted: ParentAdjustment) => {
+                            newValues[adjusted.ingredientId] = Math.round(
+                                adjusted.newAmount,
+                            );
+                            newReasons[adjusted.ingredientId] = adjusted.reason;
+                        },
+                    );
                     delete newReasons[ingredientId];
                     setChangedValues(newValues);
                     setCurrentValues(newValues);
@@ -232,7 +241,6 @@ export default function IngredientList({
             setPendingResetId(null);
         }
     }
-
 
     function handleBannerNo() {
         setShakeBanner(false);
