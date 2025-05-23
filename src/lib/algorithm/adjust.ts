@@ -55,8 +55,6 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             changedIngredient.ingredient.id,
         );
 
-        console.log('Beste Optionen', bestOptions);
-
         // Übernehme die Top 3 Anpassungen
         if (bestOptions.success) {
             bestOptions.data.slice(0, 3).forEach((option) => {
@@ -87,8 +85,6 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         } else {
             adjustmentFeedback = bestOptions.error;
         }
-
-        console.log('Also Änderungen', adjustments);
 
         // Übernehme Benutzeränderung
         const changed = adjustedRecipe.ingredients.find(

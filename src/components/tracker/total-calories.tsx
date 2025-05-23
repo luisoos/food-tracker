@@ -46,8 +46,6 @@ export default function TotalCalories() {
 
     if (!totalMacros) return;
 
-    console.log(dailyPlan)
-
     const totalCalories = calculateCaloriesFromMacros(totalMacros);
 
     const totalCalorieData = [

@@ -168,9 +168,9 @@ export default function IngredientList({
                 amount: previousValues[ingredient.ingredient.id],
                 ingredient: {
                     ...ingredient.ingredient,
-                    isFlexible: dirtyFields.has(ingredient.ingredient.id)
+                    isFlexible: (dirtyFields.has(ingredient.ingredient.id)
                         ? false
-                        : ingredient.ingredient.isFlexible,
+                        : ingredient.ingredient.isFlexible),
                 },
             })),
         };
@@ -293,7 +293,6 @@ export default function IngredientList({
                         shake={shakeBanner}
                         isLoading={isAdjusting}
                         onYes={async () => {
-                            // here its not executed, editingIngredientId is null / undefined -> nothing on console.log
                             await handleIngredientAdjustment(
                                 editingIngredientId,
                             );

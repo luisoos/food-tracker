@@ -45,8 +45,6 @@ export function findBestIngredientsToAdjust(
         };
     }
 
-    console.log('Macros zu kompensieren', macrosToCompensate);
-
     // Für jede flexible Zutat (außer der geänderten)
     recipe.ingredients
         .filter(
@@ -110,8 +108,6 @@ export function findBestIngredientsToAdjust(
             error: 'Keine sinnvollen Anpassungen möglich. Die erforderlichen Änderungen wären zu extrem.',
         };
     }
-
-    console.log('adjustments:', adjustments);
 
     // Sortiere Anpassungen nach Effizienz (höchste zuerst)
     return {
