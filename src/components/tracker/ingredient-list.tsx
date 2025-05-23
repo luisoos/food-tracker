@@ -15,6 +15,7 @@ import {
 } from '@/lib/types';
 import IngredientAmountReason from './ingredient-amount-reason';
 import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
+import { NumberTicker } from '../magicui/number-ticker';
 
 interface IngredientListProps {
     recipeId: string;
@@ -333,11 +334,20 @@ export default function IngredientList({
                     />
                 )}
             </div>
-            <Macronutrients
-                carbs={totalMacros.carbs}
-                protein={totalMacros.protein}
-                fat={totalMacros.fat}
-            />
+            <div>
+                <Macronutrients
+                    carbs={totalMacros.carbs}
+                    protein={totalMacros.protein}
+                    fat={totalMacros.fat}
+                />
+                <div className="mt-20 text-right"><NumberTicker
+                    value={totalCalories}
+                    startValue={Math.round(totalCalories - (totalCalories / 20))}
+                    decimalPlaces={0}
+                    className='whitespace-pre-wrap text-3xl font-bold tracking-tighter text-black dark:text-white'
+                />
+                <span className='font-mono'> kcal</span></div>
+            </div>
         </div>
     );
 }

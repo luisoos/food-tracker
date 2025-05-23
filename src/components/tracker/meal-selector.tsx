@@ -134,7 +134,9 @@ function MealDisplay({
                                     />
                                 </div>
                             </HoverCardTrigger>
-                            <HoverCardContent align='start' className="-translate-y-6">
+                            <HoverCardContent
+                                align='start'
+                                className='-translate-y-6'>
                                 {typeName} löschen
                             </HoverCardContent>
                         </HoverCard>
