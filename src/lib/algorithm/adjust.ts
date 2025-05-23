@@ -22,6 +22,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     // Erstelle eine Kopie des Originalrezepts für Anpassungen
     const adjustedRecipe: Recipe = JSON.parse(JSON.stringify(recipe));
     const adjustments: ParentAdjustment[] = [];
+    let adjustmentFeedback: string = 'Unbekannter Fehler';
 
     const mealOrder: MealType[] = [
         MealType.BREAKFAST,
@@ -54,26 +55,30 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         );
 
         // Übernehme die Top 3 Anpassungen
-        bestOptions.slice(0, 3).forEach((option) => {
-            const target = adjustedRecipe.ingredients.find(
-                (ri) => ri.ingredient.id === option.ingredientId,
-            );
+        if (bestOptions.success) {
+            bestOptions.data.slice(0, 3).forEach((option) => {
+                const target = adjustedRecipe.ingredients.find(
+                    (ri) => ri.ingredient.id === option.ingredientId,
+                );
 
-            if (!target) return;
+                if (!target) return;
 
-            const newAmount = Math.max(0, target.amount + option.amount);
+                const newAmount = Math.max(0, target.amount + option.amount);
 
-            // Aktualisiere Zutat und speichere Originalwert
-            target.amount = newAmount;
-            target.originalAmount = target.amount;
+                // Aktualisiere Zutat und speichere Originalwert
+                target.amount = newAmount;
+                target.originalAmount = target.amount;
 
-            adjustments.push({
-                ingredientId: option.ingredientId,
-                originalAmount: target.amount,
-                newAmount,
-                reason: `${option.macro}-Ausgleich`,
+                adjustments.push({
+                    ingredientId: option.ingredientId,
+                    originalAmount: target.amount,
+                    newAmount,
+                    reason: `${option.macro}-Ausgleich`,
+                });
             });
-        });
+        } else {
+            adjustmentFeedback = bestOptions.error;
+        }
 
         // Übernehme Benutzeränderung
         const changed = adjustedRecipe.ingredients.find(
@@ -113,7 +118,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         );
 
         if (!needsAdjustment)
-            return { adjustedRecipe: recipe, adjustments: [] };
+            return { adjustedRecipe: recipe, adjustments: { success: false, error: 'Du benötigst keine Anpassung für diese Mahlzeit.' }};
 
         // Anpassungslogik mit dynamischem Defizit
         const bestOptions = findBestIngredientsToAdjust(
@@ -122,25 +127,29 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         );
 
         // Übernehme Top 3 Anpassungen
-        bestOptions.slice(0, 3).forEach((option) => {
-            const target = adjustedRecipe.ingredients.find(
-                (ri) => ri.ingredient.id === option.ingredientId,
-            );
+        if (bestOptions.success) {
+            bestOptions.data.slice(0, 3).forEach((option) => {
+                const target = adjustedRecipe.ingredients.find(
+                    (ri) => ri.ingredient.id === option.ingredientId,
+                );
 
-            if (!target) return;
+                if (!target) return;
 
-            const newAmount = Math.max(0, target.amount + option.amount);
+                const newAmount = Math.max(0, target.amount + option.amount);
 
-            target.amount = newAmount;
-            target.originalAmount = target.amount;
+                target.amount = newAmount;
+                target.originalAmount = target.amount;
 
-            adjustments.push({
-                ingredientId: option.ingredientId,
-                originalAmount: target.amount,
-                newAmount,
-                reason: `${option.macro}-Ausgleich vom Tag`,
+                adjustments.push({
+                    ingredientId: option.ingredientId,
+                    originalAmount: target.amount,
+                    newAmount,
+                    reason: `${option.macro}-Ausgleich vom Tag`,
+                });
             });
-        });
+        } else {
+            adjustmentFeedback = bestOptions.error;
+        }
     }
 
     // Aktualisiere Gesamtwerte des Rezepts
@@ -149,5 +158,8 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         adjustedRecipe.totalMacros,
     );
 
-    return { adjustedRecipe, adjustments };
+    return { adjustedRecipe, adjustments: adjustments.length > 0
+        ? { success: true, data: adjustments }
+        : { success: false, error: adjustmentFeedback }
+    };
 }

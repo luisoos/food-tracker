@@ -6,7 +6,7 @@ import Macronutrients from './macro-view';
 import { cn, toGermanNumber } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import IngredientAdjustBanner from './ingredient-adjust-banner';
-import { DailyPlan, MealType, RecipeIngredient } from '@/lib/types';
+import { DailyPlan, MealType, ParentAdjustment, RecipeIngredient } from '@/lib/types';
 
 interface IngredientListProps {
     recipeId: string;
@@ -120,10 +120,11 @@ export default function IngredientList({
 
             if (result && result.adjustments && Array.isArray(result.adjustments)) {
                 const newValues = { ...changedValues };
-                result.adjustments.forEach((adjusted: RecipeIngredient) => {
-                    newValues[adjusted.ingredient.id] = adjusted.amount;
+                result.adjustments.forEach((adjusted: ParentAdjustment) => {
+                    newValues[adjusted.ingredientId] = adjusted.newAmount;
                 });
                 setChangedValues(newValues);
+                // TODO: Input values need to be changed !!!
             }
         } catch (error) {
             console.error('Failed to adjust recipe:', error);

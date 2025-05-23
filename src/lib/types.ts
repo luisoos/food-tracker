@@ -3,6 +3,11 @@ const PROTEIN_CALORIES_PER_GRAM = 4;
 const CARBS_CALORIES_PER_GRAM = 4;
 const FAT_CALORIES_PER_GRAM = 9;
 
+// Standart Result Type
+type Result<T, E = string> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
 // Basistypen
 interface Macros {
     protein: number; // Gramm Protein
@@ -82,6 +87,9 @@ type ParentAdjustment = {
     reason: string; // Erklärung für die Anpassung
 };
 
+// Kombinierter Type für internes Feedback
+type EvaluationResult = Result<Adjustment[], string>;
+
 // Eingabe für den Anpassungsalgorithmus
 interface AdjustmentInput {
     recipe: Recipe; // Das anzupassende Rezept
@@ -93,7 +101,7 @@ interface AdjustmentInput {
 // Ausgabe des Anpassungsalgorithmus
 interface AdjustmentOutput {
     adjustedRecipe: Recipe; // Das angepasste Rezept
-    adjustments: ParentAdjustment[];
+    adjustments: Result<ParentAdjustment[], string>;
 }
 
 export {
@@ -113,6 +121,7 @@ export type {
     DailyPlan,
     Adjustment,
     ParentAdjustment,
+    EvaluationResult,
     AdjustmentInput,
     AdjustmentOutput,
 };

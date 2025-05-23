@@ -85,10 +85,10 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // 3. Typensichere Daten nach Validierung
+        // Typensichere Daten nach Validierung
         const validatedData = validationResult.data;
 
-        // 4. Algorithmus aufrufen
+        // Algorithmus aufrufen
         const result = adjustRecipe(validatedData);
 
         return NextResponse.json(result);
