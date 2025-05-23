@@ -18,6 +18,7 @@ export function useRecipeAdjustment() {
             recipe: Recipe,
             currentMealType: MealType,
             dailyPlan: DailyPlan,
+            isRevertToOriginal: boolean,
             changedIngredient?: RecipeIngredient,
         ) => {
             setIsLoading(true);
