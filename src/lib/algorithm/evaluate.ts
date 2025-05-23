@@ -68,19 +68,21 @@ export function findBestIngredientsToAdjust(
 
                 // Menge begrenzen (max. 250% der Originalmenge)
                 // Neue finale Menge
-                const newTotalAmount = ingredientTotals[ri.ingredient.id] + requiredAmount;
+                const newTotalAmount =
+                    ingredientTotals[ri.ingredient.id] + requiredAmount;
 
                 const MAX_ADJUSTMENT_FACTOR = 2.5;
                 const maxAllowedAmount = ri.amount * MAX_ADJUSTMENT_FACTOR;
                 const minAllowedAmount = ri.amount * 0.1; // Mindestens 10%
-                
+
                 const clampedTotalAmount = Math.max(
                     minAllowedAmount,
-                    Math.min(newTotalAmount, maxAllowedAmount)
+                    Math.min(newTotalAmount, maxAllowedAmount),
                 );
-                
+
                 // Berechne tatsächliche Anpassung
-                const actualAdjustment = clampedTotalAmount - ingredientTotals[ri.ingredient.id];
+                const actualAdjustment =
+                    clampedTotalAmount - ingredientTotals[ri.ingredient.id];
 
                 if (Math.abs(actualAdjustment) < 1) return; // Minimale Änderung ignorieren
 

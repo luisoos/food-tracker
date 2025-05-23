@@ -19,10 +19,10 @@ export function ucfirst(str: string): string {
 
 export function translateMacroToGerman(macro: keyof Macros): string {
     const translations: Record<keyof Macros, string> = {
-      'protein': 'protein',
-      'carbs': 'kohlenhydrate',
-      'fat': 'fette',
+        protein: 'protein',
+        carbs: 'kohlenhydrate',
+        fat: 'fette',
     };
-    
+
     return translations[macro];
 }

@@ -34,8 +34,9 @@ export default function RecipeSelector({
     const addMeal = useDailyPlanStore((state) => state.addMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
-    const [ recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] = useState<Recipe>();
-    
+    const [recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] =
+        useState<Recipe>();
+
     const currentRecipe = recipeWithUpdatedMacros || recipe;
 
     const handleRecipeSelection = (recipeId: string) => {
@@ -57,17 +58,20 @@ export default function RecipeSelector({
         resetRecipeSelection();
     };
 
-    const updateRecipeUsingDynamicValue = useCallback((macros: Macros, totalCalories: number) => {
-        if (!recipe) return;
+    const updateRecipeUsingDynamicValue = useCallback(
+        (macros: Macros, totalCalories: number) => {
+            if (!recipe) return;
 
-        const updatedRecipe: Recipe = {
-            ...recipe,
-            totalMacros: macros,
-            totalCalories: totalCalories
-        };
+            const updatedRecipe: Recipe = {
+                ...recipe,
+                totalMacros: macros,
+                totalCalories: totalCalories,
+            };
 
-        setRecipeWithUpdatedMacros(updatedRecipe);
-    }, [recipe]);
+            setRecipeWithUpdatedMacros(updatedRecipe);
+        },
+        [recipe],
+    );
 
     const scrollAreaSize = 400;
 
@@ -128,7 +132,9 @@ export default function RecipeSelector({
                                     recipeId={recipeId!}
                                     dailyPlan={dailyPlan}
                                     currentMealType={currentMealType}
-                                    onMacrosUpdate={updateRecipeUsingDynamicValue}
+                                    onMacrosUpdate={
+                                        updateRecipeUsingDynamicValue
+                                    }
                                 />
                             </motion.div>
                         )}

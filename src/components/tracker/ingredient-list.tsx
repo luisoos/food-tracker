@@ -45,9 +45,9 @@ export default function IngredientList({
     const [changedValues, setChangedValues] = useState<Record<string, number>>(
         {},
     );
-    const [previousValues, setPreviousValues] = useState<Record<string, number>>(
-        {},
-    );
+    const [previousValues, setPreviousValues] = useState<
+        Record<string, number>
+    >({});
     const [currentValues, setCurrentValues] = useState<Record<string, number>>(
         {},
     );
@@ -74,31 +74,33 @@ export default function IngredientList({
     // Calculate total macros
     const totalMacros = useMemo(() => {
         if (!data) return { carbs: 0, protein: 0, fat: 0 };
-        
+
         return data.ingredients.reduce(
             (acc, ingredient) => {
                 const currentAmount =
-                    currentValues[ingredient.ingredient.id] || ingredient.amount;
+                    currentValues[ingredient.ingredient.id] ||
+                    ingredient.amount;
                 const factor = currentAmount / 100;
                 acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
-                acc.protein += ingredient.ingredient.macrosPer100g.protein * factor;
+                acc.protein +=
+                    ingredient.ingredient.macrosPer100g.protein * factor;
                 acc.fat += ingredient.ingredient.macrosPer100g.fat * factor;
                 return acc;
             },
             { carbs: 0, protein: 0, fat: 0 },
         );
     }, [data, currentValues]);
-    
+
     // Calculate total calories
     const totalCalories = useMemo(() => {
         return calculateCaloriesFromMacros(totalMacros);
     }, [totalMacros]);
-    
+
     // Tell the macro details to the parent component
     useEffect(() => {
         onMacrosUpdate(totalMacros, totalCalories);
     }, [totalMacros, totalCalories, onMacrosUpdate]);
-    
+
     // Decide wether to show the ingredient adjustment banner
     const showBanner = editingIngredientId !== null;
 
@@ -110,7 +112,7 @@ export default function IngredientList({
             }, 1000);
         }
     }, [editingIngredientId, shakeBanner]);
-    
+
     // Render logic
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -147,7 +149,6 @@ export default function IngredientList({
             }
             return newSet;
         });
-
     }
 
     // Handle banner yes event
@@ -159,18 +160,19 @@ export default function IngredientList({
         );
 
         if (!originalIngredient) return;
-        
+
+        console.log(previousValues)
+
         const modifiedRecipe = {
             ...data,
             ingredients: data.ingredients.map((ingredient) => ({
                 ...ingredient,
-                // NEU: Use currentValues to reflect all user modifications and previous adjustments
                 amount: previousValues[ingredient.ingredient.id],
                 ingredient: {
                     ...ingredient.ingredient,
-                    isFlexible: (dirtyFields.has(ingredient.ingredient.id)
+                    isFlexible: dirtyFields.has(ingredient.ingredient.id)
                         ? false
-                        : ingredient.ingredient.isFlexible),
+                        : ingredient.ingredient.isFlexible,
                 },
             })),
         };
@@ -207,7 +209,7 @@ export default function IngredientList({
                 // setOriginalValues(newValues);
                 setChangedValues(newValues);
                 setCurrentValues(newValues);
-                setPreviousValues(newValues)
+                setPreviousValues(newValues);
                 setReasons(newReasons);
             } else if (result && !result.adjustments.success) {
                 const newReasons = { ...reasons };
@@ -280,9 +282,22 @@ export default function IngredientList({
                                         {toGermanNumber(ingredient.amount)}g
                                     </TableCell>
                                     <TableCell className='font-medium w-full'>
-                                        <div className="flex">{ingredient.ingredient.name}
-                                        { reasons[ingredient.ingredient.id] && <IngredientAmountReason reason={reasons[ingredient.ingredient.id] || "Keine Anpassung"} />}
-                                        </div></TableCell>
+                                        <div className='flex'>
+                                            {ingredient.ingredient.name}
+                                            {reasons[
+                                                ingredient.ingredient.id
+                                            ] && (
+                                                <IngredientAmountReason
+                                                    reason={
+                                                        reasons[
+                                                            ingredient
+                                                                .ingredient.id
+                                                        ] || 'Keine Anpassung'
+                                                    }
+                                                />
+                                            )}
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
                             );
                         })}
