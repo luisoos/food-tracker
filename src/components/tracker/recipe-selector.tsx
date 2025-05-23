@@ -86,7 +86,7 @@ export default function RecipeSelector({
                 className='md:px-32 xl:px-72 2xl:px-96'>
                 <DrawerHeader className='pb-0'>
                     <DrawerTitle className='text-xl'>
-                        {typeName} hinzufügen{ recipe && ': ' + recipe.name}
+                        <RecipeDrawerTitle typeName={typeName} recipeName={recipe?.name} /> 
                     </DrawerTitle>
                     <AnimatePresence mode='wait'>
                         {!recipeId ? (
@@ -160,3 +160,40 @@ export default function RecipeSelector({
         </Drawer>
     );
 }
+
+function RecipeDrawerTitle({ typeName, recipeName }: { typeName: string; recipeName: string | undefined; }) {
+    return (
+        <div className="flex items-center">
+          <span>{typeName} hinzufügen</span>
+          <AnimatePresence mode="wait">
+            {recipeName && (
+              <motion.span
+                key={recipeName}
+                initial={{ 
+                  y: 30, 
+                  opacity: 0,
+                  scale: 0.9 
+                }}
+                animate={{ 
+                  y: 0, 
+                  opacity: 1,
+                  scale: 1 
+                }}
+                exit={{ 
+                  y: -20, 
+                  opacity: 0,
+                  scale: 0.9 
+                }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.6
+                }}
+              >: {recipeName}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+      );
+};
