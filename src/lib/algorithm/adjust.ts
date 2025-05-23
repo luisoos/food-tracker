@@ -6,6 +6,7 @@ import {
     MealType,
     ParentAdjustment,
 } from '../types';
+import { translateMacroToGerman } from '../utils';
 import {
     calculateMacroDifference,
     calculateRemainingMacros,
@@ -80,7 +81,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
                     ingredientId: option.ingredientId,
                     originalAmount, // Echter ursprünglicher Wert
                     newAmount, // Neuer berechneter Wert
-                    reason: `${option.macro}-Ausgleich`,
+                    reason: `${translateMacroToGerman(option.macro)}-Ausgleich`,
                 });
             });
         } else {

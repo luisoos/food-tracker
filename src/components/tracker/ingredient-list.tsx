@@ -12,6 +12,7 @@ import {
     ParentAdjustment,
     RecipeIngredient,
 } from '@/lib/types';
+import IngredientAmountReason from './ingredient-amount-reason';
 
 interface IngredientListProps {
     recipeId: string;
@@ -166,15 +167,23 @@ export default function IngredientList({
                 Array.isArray(result.adjustments.data)
             ) {
                 const newValues = { ...currentValues };
+                const newReasons = { ...reasons };
                 result.adjustments.data.forEach(
                     (adjusted: ParentAdjustment) => {
                         newValues[adjusted.ingredientId] = Math.round(
                             adjusted.newAmount,
                         );
+                        newReasons[adjusted.ingredientId] = adjusted.reason;
                     },
                 );
+                delete newReasons[ingredientId];
                 setChangedValues(newValues);
                 setCurrentValues(newValues);
+                setReasons(newReasons);
+            } else if (result && !result.adjustments.success) {
+                const newReasons = { ...reasons };
+                newReasons[ingredientId] = result.adjustments.error;
+                setReasons(newReasons);
             }
         } catch (error) {
             console.error('Failed to adjust recipe:', error);
@@ -251,8 +260,9 @@ export default function IngredientList({
                                         {toGermanNumber(ingredient.amount)}g
                                     </TableCell>
                                     <TableCell className='font-medium w-full'>
-                                        {ingredient.ingredient.name}
-                                    </TableCell>
+                                        <div className="flex">{ingredient.ingredient.name}
+                                        { reasons[ingredient.ingredient.id] && <IngredientAmountReason reason={reasons[ingredient.ingredient.id] || "Keine Anpassung"} />}
+                                        </div></TableCell>
                                 </TableRow>
                             );
                         })}
