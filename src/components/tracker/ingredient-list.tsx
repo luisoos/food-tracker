@@ -32,9 +32,9 @@ export default function IngredientList({
     const [originalValues, setOriginalValues] = useState<
         Record<string, number>
     >({});
-    const [changedValues, setChangedValues] = useState<Record<string, number>>(
-        {},
-    );
+    const [changedValues, setChangedValues] = useState<
+        Record<string, number>
+    >({});
     const [shakeBanner, setShakeBanner] = useState(false);
 
     // Hooks
@@ -97,15 +97,18 @@ export default function IngredientList({
 
     // Handle banner yes event
     async function handleIngredientAdjustment(ingredientId: string) {
-        console.log('test');
         if (!data || !dailyPlan || !currentMealType) return;
-        console.log('test2');
 
-        const changedIngredient = data.ingredients.find(
+        const originalIngredient = data.ingredients.find(
             (i) => i.ingredient.id === ingredientId,
         );
-
-        if (!changedIngredient) return;
+        
+        if (!originalIngredient) return;
+        
+        const changedIngredient = {
+            ...originalIngredient,
+            amount: changedValues[ingredientId]
+        };
 
         try {
             const result = await adjustRecipe(
@@ -115,14 +118,11 @@ export default function IngredientList({
                 changedIngredient,
             );
 
-            if (result) {
-                // Update the values with the adjusted amounts
+            if (result && result.adjustments && Array.isArray(result.adjustments)) {
                 const newValues = { ...changedValues };
-                result.adjustedIngredients.forEach(
-                    (adjusted: RecipeIngredient) => {
-                        newValues[adjusted.ingredient.id] = adjusted.amount;
-                    },
-                );
+                result.adjustments.forEach((adjusted: RecipeIngredient) => {
+                    newValues[adjusted.ingredient.id] = adjusted.amount;
+                });
                 setChangedValues(newValues);
             }
         } catch (error) {
