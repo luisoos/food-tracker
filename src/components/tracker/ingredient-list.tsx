@@ -6,7 +6,12 @@ import Macronutrients from './macro-view';
 import { cn, toGermanNumber } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import IngredientAdjustBanner from './ingredient-adjust-banner';
-import { DailyPlan, MealType, ParentAdjustment, RecipeIngredient } from '@/lib/types';
+import {
+    DailyPlan,
+    MealType,
+    ParentAdjustment,
+    RecipeIngredient,
+} from '@/lib/types';
 
 interface IngredientListProps {
     recipeId: string;
@@ -32,9 +37,13 @@ export default function IngredientList({
     const [originalValues, setOriginalValues] = useState<
         Record<string, number>
     >({});
-    const [changedValues, setChangedValues] = useState<
-        Record<string, number>
-    >({});
+    const [changedValues, setChangedValues] = useState<Record<string, number>>(
+        {},
+    );
+    const [currentValues, setCurrentValues] = useState<Record<string, number>>(
+        {},
+    );
+    const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
 
     // Hooks
@@ -46,6 +55,7 @@ export default function IngredientList({
             });
             setOriginalValues(values);
             setChangedValues(values);
+            setCurrentValues(values);
         }
     }, [data]);
 
@@ -67,7 +77,9 @@ export default function IngredientList({
     // Calculate total macros
     const totalMacros = data.ingredients.reduce(
         (acc, ingredient) => {
-            const factor = ingredient.amount / 100;
+            const currentAmount =
+                currentValues[ingredient.ingredient.id] || ingredient.amount;
+            const factor = currentAmount / 100;
             acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
             acc.protein += ingredient.ingredient.macrosPer100g.protein * factor;
             acc.fat += ingredient.ingredient.macrosPer100g.fat * factor;
@@ -85,7 +97,31 @@ export default function IngredientList({
             [ingredientId]: value,
         }));
 
+        setCurrentValues((prev) => ({
+            ...prev,
+            [ingredientId]: value,
+        }));
+
+        setDirtyFields((prev) => {
+            const newSet = new Set(prev);
+            if (isModified) {
+                newSet.add(ingredientId);
+            } else {
+                newSet.delete(ingredientId);
+            }
+            return newSet;
+        });
+
         setEditingIngredientId(isModified ? ingredientId : null);
+    }
+
+    // Helper function to extrat dirty values
+    function getDirtyValues(): Record<string, number> {
+        const dirtyValues: Record<string, number> = {};
+        dirtyFields.forEach((ingredientId) => {
+            dirtyValues[ingredientId] = currentValues[ingredientId];
+        });
+        return dirtyValues;
     }
 
     // Handle input blur event
@@ -102,29 +138,51 @@ export default function IngredientList({
         const originalIngredient = data.ingredients.find(
             (i) => i.ingredient.id === ingredientId,
         );
-        
+
         if (!originalIngredient) return;
-        
+
+        const modifiedRecipe = {
+            ...data,
+            ingredients: data.ingredients.map((ingredient) => ({
+                ...ingredient,
+                ingredient: {
+                    ...ingredient.ingredient,
+                    // All dirty fields are not flexible
+                    isFlexible: dirtyFields.has(ingredient.ingredient.id)
+                        ? false
+                        : ingredient.ingredient.isFlexible,
+                },
+            })),
+        };
+
         const changedIngredient = {
             ...originalIngredient,
-            amount: changedValues[ingredientId]
+            amount: changedValues[ingredientId],
         };
 
         try {
             const result = await adjustRecipe(
-                data,
+                modifiedRecipe,
                 currentMealType,
                 dailyPlan,
                 changedIngredient,
             );
 
-            if (result && result.adjustments && Array.isArray(result.adjustments)) {
-                const newValues = { ...changedValues };
-                result.adjustments.forEach((adjusted: ParentAdjustment) => {
-                    newValues[adjusted.ingredientId] = adjusted.newAmount;
-                });
+            if (
+                result &&
+                result.adjustments.success &&
+                Array.isArray(result.adjustments.data)
+            ) {
+                const newValues = { ...currentValues };
+                result.adjustments.data.forEach(
+                    (adjusted: ParentAdjustment) => {
+                        newValues[adjusted.ingredientId] = Math.round(
+                            adjusted.newAmount,
+                        );
+                    },
+                );
                 setChangedValues(newValues);
-                // TODO: Input values need to be changed !!!
+                setCurrentValues(newValues);
             }
         } catch (error) {
             console.error('Failed to adjust recipe:', error);
@@ -150,6 +208,11 @@ export default function IngredientList({
                                 editingIngredientId !== null &&
                                 editingIngredientId !==
                                     ingredient.ingredient.id;
+
+                            const currentValue =
+                                currentValues[ingredient.ingredient.id] ||
+                                ingredient.amount;
+
                             return (
                                 <TableRow key={index}>
                                     <TableCell className='flex items-center text-center w-20'>
@@ -161,7 +224,7 @@ export default function IngredientList({
                                             )}
                                             type='number'
                                             id={ingredient.ingredient.id}
-                                            defaultValue={ingredient.amount}
+                                            value={currentValue}
                                             min={1}
                                             readOnly={isLocked}
                                             onClick={() => {

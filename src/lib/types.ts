@@ -4,9 +4,9 @@ const CARBS_CALORIES_PER_GRAM = 4;
 const FAT_CALORIES_PER_GRAM = 9;
 
 // Standart Result Type
-type Result<T, E = string> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = string> =
+    | { success: true; data: T }
+    | { success: false; error: E };
 
 // Basistypen
 interface Macros {

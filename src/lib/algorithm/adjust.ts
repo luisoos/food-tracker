@@ -54,6 +54,8 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             changedIngredient.ingredient.id,
         );
 
+        console.log('Beste Optionen', bestOptions);
+
         // Übernehme die Top 3 Anpassungen
         if (bestOptions.success) {
             bestOptions.data.slice(0, 3).forEach((option) => {
@@ -63,22 +65,29 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
 
                 if (!target) return;
 
+                // 1. Ursprünglichen Wert speichern
+                const originalAmount = target.amount;
+
+                // 2. Neuen Wert berechnen
                 const newAmount = Math.max(0, target.amount + option.amount);
 
-                // Aktualisiere Zutat und speichere Originalwert
+                // 3. Zutat aktualisieren
                 target.amount = newAmount;
-                target.originalAmount = target.amount;
+                target.originalAmount = originalAmount;
 
+                // 4. Adjustment mit korrekten Werten hinzufügen
                 adjustments.push({
                     ingredientId: option.ingredientId,
-                    originalAmount: target.amount,
-                    newAmount,
+                    originalAmount, // Echter ursprünglicher Wert
+                    newAmount, // Neuer berechneter Wert
                     reason: `${option.macro}-Ausgleich`,
                 });
             });
         } else {
             adjustmentFeedback = bestOptions.error;
         }
+
+        console.log('Also Änderungen', adjustments);
 
         // Übernehme Benutzeränderung
         const changed = adjustedRecipe.ingredients.find(
@@ -118,7 +127,13 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         );
 
         if (!needsAdjustment)
-            return { adjustedRecipe: recipe, adjustments: { success: false, error: 'Du benötigst keine Anpassung für diese Mahlzeit.' }};
+            return {
+                adjustedRecipe: recipe,
+                adjustments: {
+                    success: false,
+                    error: 'Du benötigst keine Anpassung für diese Mahlzeit.',
+                },
+            };
 
         // Anpassungslogik mit dynamischem Defizit
         const bestOptions = findBestIngredientsToAdjust(
@@ -158,8 +173,11 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         adjustedRecipe.totalMacros,
     );
 
-    return { adjustedRecipe, adjustments: adjustments.length > 0
-        ? { success: true, data: adjustments }
-        : { success: false, error: adjustmentFeedback }
+    return {
+        adjustedRecipe,
+        adjustments:
+            adjustments.length > 0
+                ? { success: true, data: adjustments }
+                : { success: false, error: adjustmentFeedback },
     };
 }
