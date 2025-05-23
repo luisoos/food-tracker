@@ -48,6 +48,7 @@ export default function IngredientList({
     const [currentValues, setCurrentValues] = useState<Record<string, number>>(
         {},
     );
+    const [pendingResetId, setPendingResetId] = useState<string | null>(null);
     const [reasons, setReasons] = useState<Record<string, string>>({});
     const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
@@ -115,6 +116,14 @@ export default function IngredientList({
     function changeIngredientAmount(value: number, ingredientId: string) {
         const isModified = value !== originalValues[ingredientId];
 
+        setEditingIngredientId(ingredientId);
+
+        if (isModified) {
+            setPendingResetId(null);
+        } else {
+            setPendingResetId(ingredientId); // Track pending resets
+        }
+
         setChangedValues((prev) => ({
             ...prev,
             [ingredientId]: value,
@@ -135,14 +144,6 @@ export default function IngredientList({
             return newSet;
         });
 
-        setEditingIngredientId(isModified ? ingredientId : null);
-    }
-
-    // Handle input blur event
-    function handleBlur(ingredientId: string, value: number) {
-        if (value === originalValues[ingredientId]) {
-            setEditingIngredientId(null);
-        }
     }
 
     // Handle banner yes event
@@ -262,15 +263,6 @@ export default function IngredientList({
                                                     );
                                                 }
                                             }}
-                                            onBlur={(e) => {
-                                                if (!isLocked) {
-                                                    handleBlur(
-                                                        ingredient.ingredient
-                                                            .id,
-                                                        Number(e.target.value),
-                                                    );
-                                                }
-                                            }}
                                         />
                                         <span className='h-8 ml-1 flex items-center leading-8'>
                                             g
@@ -294,11 +286,10 @@ export default function IngredientList({
                         shake={shakeBanner}
                         isLoading={isAdjusting}
                         onYes={async () => {
-                            if (editingIngredientId) {
-                                await handleIngredientAdjustment(
-                                    editingIngredientId,
-                                );
-                            }
+                            // here its not executed, editingIngredientId is null / undefined -> nothing on console.log
+                            await handleIngredientAdjustment(
+                                editingIngredientId,
+                            );
                         }}
                         onNo={handleBannerNo}
                     />
