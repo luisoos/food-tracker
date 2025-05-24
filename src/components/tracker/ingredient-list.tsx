@@ -16,6 +16,8 @@ import {
 import IngredientAmountReason from './ingredient-amount-reason';
 import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
 import { NumberTicker } from '../magicui/number-ticker';
+import { ScrollArea } from '../ui/scroll-area';
+import MacroRing from './macro-ring';
 
 interface IngredientListProps {
     recipeId: string;
@@ -250,7 +252,7 @@ export default function IngredientList({
 
     return (
         <div className='md:grid grid-cols-2 gap-8'>
-            <div className='flex flex-col'>
+                <div className='flex flex-col'>
                 <Table className='max-w-xl'>
                     <TableBody>
                         {data.ingredients.map((ingredient, index) => {
@@ -335,12 +337,62 @@ export default function IngredientList({
                 )}
             </div>
             <div>
-                <Macronutrients
+                <div className="max-md:hidden"><Macronutrients
                     carbs={totalMacros.carbs}
                     protein={totalMacros.protein}
                     fat={totalMacros.fat}
-                />
-                <div className="mt-20 text-right"><NumberTicker
+                /></div> 
+                <div className='md:hidden flex items-center gap-4 justify-center py-2'>
+                                <div className='flex flex-col items-center'>
+                                    <MacroRing
+                                        value={(totalMacros.carbs / 264) * 100}
+                                        color='#e0d83c'
+                                        size={48}>
+                                        <span className='text-xs font-semibold'>
+                                            {Math.round(
+                                                (totalMacros.carbs / 264) * 100,
+                                            )}{' '}
+                                            %
+                                        </span>
+                                    </MacroRing>
+                                    <span className='text-xs mt-1 text-zinc-500'>
+                                        KH
+                                    </span>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <MacroRing
+                                        value={(totalMacros.protein / 120) * 100}
+                                        color='#30bc29'
+                                        size={48}>
+                                        <span className='text-xs font-semibold'>
+                                            {Math.round(
+                                                (totalMacros.protein / 120) * 100,
+                                            )}{' '}
+                                            %
+                                        </span>
+                                    </MacroRing>
+                                    <span className='text-xs mt-1 text-zinc-500'>
+                                        Protein
+                                    </span>
+                                </div>
+                                <div className='flex flex-col items-center'>
+                                    <MacroRing
+                                        value={(totalMacros.fat / 85) * 100}
+                                        color='#e0423c'
+                                        size={48}>
+                                        <span className='text-xs font-semibold'>
+                                            {Math.round(
+                                                (totalMacros.fat / 85) * 100,
+                                            )}{' '}
+                                            %
+                                        </span>
+                                    </MacroRing>
+                                    <span className='text-xs mt-1 text-zinc-500'>
+                                        Fett
+                                    </span>
+                                </div>
+                            </div>
+                <div className="md:mt-20 text-right"><NumberTicker
                     value={totalCalories}
                     startValue={Math.round(totalCalories - (totalCalories / 20))}
                     decimalPlaces={0}

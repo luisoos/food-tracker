@@ -18,6 +18,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { DailyPlan, Macros, MealType, Recipe } from '@/lib/types';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useRecipe } from '@/hooks/useRecipeById';
+import { useScreenWidth } from '@/hooks/useScreenWidth';
 
 interface RecipeSelectorProps {
     typeName: string;
@@ -30,10 +31,10 @@ export default function RecipeSelector({
     children,
     currentMealType,
 }: RecipeSelectorProps) {
+    const screenWidth = useScreenWidth();
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
     const addMeal = useDailyPlanStore((state) => state.addMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
-    const [recipeName, setRecipeName] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
     const [recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] =
         useState<Recipe>();
@@ -74,7 +75,7 @@ export default function RecipeSelector({
         [recipe],
     );
 
-    const scrollAreaSize = 400;
+    const scrollAreaSize = screenWidth < 768 ? 500 : 400;
 
     return (
         <Drawer onClose={() => resetRecipeSelection()}>
@@ -173,7 +174,7 @@ function RecipeDrawerTitle({
 }) {
     return (
         <div className='flex items-center'>
-            <span>{typeName} hinzufügen</span>
+            <span>{typeName} hinzufügen
             <AnimatePresence mode='wait'>
                 {recipeName && (
                     <motion.span
@@ -202,7 +203,7 @@ function RecipeDrawerTitle({
                         : {recipeName}
                     </motion.span>
                 )}
-            </AnimatePresence>
+            </AnimatePresence></span>
         </div>
     );
 }

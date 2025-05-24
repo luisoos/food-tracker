@@ -73,7 +73,6 @@ export default function TotalCalories() {
                     <ChartContainer
                         config={totalCalorieChartConfig}
                         className='w-full h-56 mb-4'>
-                        <ResponsiveContainer width='100%' height={220}>
                             <PieChart>
                                 <Tooltip content={<CustomTooltip />} />
                                 <Pie
@@ -127,7 +126,6 @@ export default function TotalCalories() {
                                     />
                                 </Pie>
                             </PieChart>
-                        </ResponsiveContainer>
                     </ChartContainer>
                 </div>
 
