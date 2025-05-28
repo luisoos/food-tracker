@@ -1,14 +1,16 @@
+import { calculateCaloriesFromMacros } from './algorithm/calculate';
+import { CARBS_TARGET, FAT_TARGET, PROTEIN_TARGET } from './recipes';
 import { DailyPlan, MealType } from './types';
 
 const DEFAULT_MACRO_GOAL = {
-    protein: 120, // grams
-    carbs: 264, // grams
-    fat: 85, // grams
+    protein: PROTEIN_TARGET, // grams
+    carbs: CARBS_TARGET, // grams
+    fat: FAT_TARGET, // grams
     plusMinusPercentage: 10, // 10% deviation allowed
 };
 
 const DEFAULT_DAILY_GOAL = {
-    calories: 2000, // kcal
+    calories: calculateCaloriesFromMacros(DEFAULT_MACRO_GOAL), // kcal
     macros: DEFAULT_MACRO_GOAL,
 };
 

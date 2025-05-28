@@ -277,7 +277,7 @@ export default function IngredientList({
                                             type='number'
                                             id={ingredient.ingredient.id}
                                             value={currentValue}
-                                            min={1}
+                                            min={0}
                                             readOnly={isLocked}
                                             onClick={() => {
                                                 if (isLocked)

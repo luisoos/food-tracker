@@ -2,15 +2,8 @@
 
 import * as React from 'react';
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    LabelList,
     Pie,
     PieChart,
-    XAxis,
-    YAxis,
-    ResponsiveContainer,
     Label,
     Tooltip,
 } from 'recharts';
@@ -19,8 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     ChartConfig,
     ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
 } from '@/components/ui/chart';
 import Macronutrients from './macro-view';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
@@ -117,7 +108,7 @@ export default function TotalCalories() {
                                                                     0) + 24
                                                             }
                                                             className='fill-muted-foreground text-base'>
-                                                            Kalorien
+                                                            / {goal.calories} kcal
                                                         </tspan>
                                                     </text>
                                                 );
@@ -155,7 +146,7 @@ function CustomTooltip({
             <div className='rounded-lg p-2 shadow-lg backdrop-blur-lg bg-white/20 border border-white/30'>
                 <p className='font-medium'>{data.type}</p>
                 <p className='text-sm text-zinc-600'>
-                    {Math.round(data.value)} kcal
+                    {Math.round(data.value)} <span className="font-mono">kcal</span>
                 </p>
             </div>
         );
