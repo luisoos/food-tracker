@@ -5,6 +5,7 @@ import {
     Macros,
     Recipe,
 } from '../types';
+import { recipes } from '../recipes';
 
 // Berechnet die "Effizienz" einer Zutat für die Bereitstellung eines bestimmten Makros
 export function calculateIngredientEfficiency(
@@ -29,6 +30,21 @@ export function findBestIngredientsToAdjust(
 ): EvaluationResult {
     const adjustments: Adjustment[] = [];
     const ingredientTotals: Record<string, number> = {}; // Track finale Mengen
+    
+    // Find original recipe by matching ID
+    const originalRecipe = Object.values(recipes).find(r => r.id === recipe.id);
+    if (!originalRecipe) {
+        return {
+            success: false,
+            error: 'Original recipe not found for reference amounts.',
+        };
+    }
+
+    // Create map of original amounts
+    const originalAmounts: Record<string, number> = {};
+    originalRecipe.ingredients.forEach(ri => {
+        originalAmounts[ri.ingredient.id] = ri.amount;
+    });
 
     // Bestimme, welche Makros kompensiert werden müssen (nur signifikante Unterschiede)
     const macrosToCompensate: (keyof Macros)[] = [];
@@ -66,14 +82,14 @@ export function findBestIngredientsToAdjust(
                 const requiredAmount =
                     Math.abs(macroDifference[macro] / macroPerGram) * direction;
 
-                // Menge begrenzen (max. 250% der Originalmenge)
+                // Menge begrenzen (max. 250% der Originalmenge aus recipes.ts)
+                const MAX_ADJUSTMENT_FACTOR = 2.5;
+                const maxAllowedAmount = originalAmounts[ri.ingredient.id] * MAX_ADJUSTMENT_FACTOR;
+                const minAllowedAmount = originalAmounts[ri.ingredient.id] * 0.1; // Mindestens 10%
+
                 // Neue finale Menge
                 const newTotalAmount =
                     ingredientTotals[ri.ingredient.id] + requiredAmount;
-
-                const MAX_ADJUSTMENT_FACTOR = 2.5;
-                const maxAllowedAmount = ri.amount * MAX_ADJUSTMENT_FACTOR;
-                const minAllowedAmount = ri.amount * 0.1; // Mindestens 10%
 
                 const clampedTotalAmount = Math.max(
                     minAllowedAmount,
