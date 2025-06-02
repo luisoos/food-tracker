@@ -38,8 +38,21 @@ const calculateTotalMacros = (meals: Meal[]): Macros => {
     );
 };
 
+const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID || Date.now().toString();
+
+function getInitialDailyPlan() {
+    const storedId = localStorage.getItem("buildId");
+    if (storedId !== BUILD_ID) {
+        localStorage.clear();
+        localStorage.setItem("buildId", BUILD_ID);
+        return null; // or createDefaultDailyPlan();
+    }
+    const storedDailyPlan = localStorage.getItem("dailyPlan");
+    return storedDailyPlan ? JSON.parse(storedDailyPlan) : null;
+}
+
 export const useDailyPlanStore = create<Store>((set, get) => ({
-    dailyPlan: null,
+    dailyPlan: getInitialDailyPlan(),
     setDailyPlan: (dailyPlan) => {
         localStorage.setItem('dailyPlan', JSON.stringify(dailyPlan));
         set({ dailyPlan });

@@ -5,8 +5,6 @@ import Providers from './providers';
 import Navigation from '@/components/navigation';
 import { useEffect } from 'react';
 
-const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID || Date.now().toString();
-
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -27,14 +25,6 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    useEffect(() => {
-        const storedId = localStorage.getItem("buildId");
-        if (storedId !== BUILD_ID) {
-          localStorage.clear();
-          localStorage.setItem("buildId", BUILD_ID);
-        }
-    }, []);
-
     return (
         <html lang='de'>
             <body
