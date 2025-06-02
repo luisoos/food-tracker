@@ -99,11 +99,11 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     // Fall 2: Automatischer Ausgleich von Tagesdefiziten
     else {
         // Berechne fehlende/überschüssige Makros
-        const remaining = calculateRemainingMacros(dailyPlan);
+        const remaining = dailyPlan.remainingMacros || calculateRemainingMacros(dailyPlan);
 
         // Dynamischer Kompensationsfaktor basierend auf verbleibenden Mahlzeiten
         const compensationFactor =
-            remainingMeals.length > 0 ? 1 / (remainingMeals.length + 1) : 1; // Letzte Mahlzeit muss vollständig kompensieren
+            remainingMeals.length > 0 ? -(1 / (remainingMeals.length + 1)) : -1; // Letzte Mahlzeit muss vollständig kompensieren
 
         const adjustedDeficit = {
             protein: remaining.protein * compensationFactor,
@@ -138,9 +138,9 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             adjustedDeficit,
         );
 
-        // Übernehme Top 5 Anpassungen
+        // Übernehme Top 3 Anpassungen
         if (bestOptions.success) {
-            bestOptions.data.slice(0, 5).forEach((option) => {
+            bestOptions.data.slice(0, 3).forEach((option) => {
                 const target = recipe.ingredients.find(
                     (ri) => ri.ingredient.id === option.ingredientId,
                 );
@@ -163,8 +163,6 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             adjustmentFeedback = bestOptions.error;
         }
     }
-
-    console.log(adjustments);
 
     // Aktualisiere Gesamtwerte des Rezepts
     adjustedRecipe.totalMacros = calculateRecipeMacros(adjustedRecipe);

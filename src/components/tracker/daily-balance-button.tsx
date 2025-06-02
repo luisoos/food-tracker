@@ -34,12 +34,12 @@ export default function DailyBalanceButton({
                 {isLoading ? (
                     <>
                         <Loader size={14} className='mr-1.5 animate-spin' />{' '}
-                        Anpassen...
+                        <span>Anpassen...</span>
                     </>
                 ) : (
                     <>
                         <Scale size={14} className='mr-1.5' />
-                        Tagesbilanz ausgleichen
+                        <span>Tagesbilanz ausgleichen</span>
                     </>
                 )}
             </Button>

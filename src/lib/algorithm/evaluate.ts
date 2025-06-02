@@ -80,7 +80,8 @@ export function findBestIngredientsToAdjust(
                 if (ri.ingredient.macrosPer100g[macro] === 0) return;
 
                 const macroPerGram = ri.ingredient.macrosPer100g[macro] / 100;
-                const direction = macroDifference[macro] > 0 ? 1 : -1;
+                console.log(macro, macroDifference[macro])
+                const direction = macroDifference[macro] < 0 ? 1 : -1;
                 const requiredAmount =
                     Math.abs(macroDifference[macro] / macroPerGram) * direction;
 
