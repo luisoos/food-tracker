@@ -15,8 +15,7 @@ export default function Home() {
     }, [loadDailyPlan]);
 
     return (
-        <div className='w-11/12 lg:max-w-4xl mx-auto h-full min-h-screen'>
-            <Navigation />
+        <>
             <div className='mt-6'>
                 <DatePicker />
             </div>
@@ -26,6 +25,6 @@ export default function Home() {
             <div className='mt-6 mb-2'>
                 <MealSelector />
             </div>
-        </div>
+        </>
     );
 }

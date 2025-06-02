@@ -5,7 +5,7 @@ import MacroRing from './macro-ring';
 export default function RecipeList({
     onSelect,
 }: {
-    onSelect: (data: string) => void;
+    onSelect?: (data: string) => void;
 }) {
     const { data, isLoading, error } = useRecipes();
 
@@ -40,7 +40,7 @@ export default function RecipeList({
                     <div
                         key={recipe.id}
                         className=' flex flex-col h-full p-4 rounded-lg border shadow-inner hover:scale-95 duration-300 delay-50 transition-all cursor-pointer'
-                        onClick={() => onSelect(recipe.id)}>
+                        onClick={() => onSelect && onSelect(recipe.id)}>
                         <h3 className='font-semibold text-lg mb-2'>
                             {recipe.name}
                         </h3>
