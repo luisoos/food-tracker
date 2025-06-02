@@ -41,6 +41,8 @@ const calculateTotalMacros = (meals: Meal[]): Macros => {
 const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID || Date.now().toString();
 
 function getInitialDailyPlan() {
+    if (typeof window === 'undefined') return null;
+    
     const storedId = localStorage.getItem("buildId");
     if (storedId !== BUILD_ID) {
         localStorage.clear();
