@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Scale } from 'lucide-react';
+import { Loader, Scale } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -26,13 +26,21 @@ export default function DailyBalanceButton({
                 onClick={onClick}
                 disabled={isLoading}
                 className={cn(
-                    'text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100',
+                    'w-44 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100',
                     'border-zinc-200 hover:border-zinc-300',
                     'transition-all duration-300',
                     className,
                 )}>
-                <Scale size={14} className='mr-1.5' />
-                {isLoading ? 'Anpassen...' : 'Tagesbilanz ausgleichen'}
+                {isLoading ? (
+                    <>
+                        <Loader size={14} className='mr-1.5 animate-spin' /> Anpassen...
+                    </>
+                ) : (
+                    <>
+                        <Scale size={14} className='mr-1.5' />
+                        Tagesbilanz ausgleichen
+                    </>
+                )}
             </Button>
         </motion.div>
     );

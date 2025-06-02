@@ -99,7 +99,7 @@ export default function IngredientList({
     }, [data]);
 
     useEffect(() => {
-        setInputValues(prev => {
+        setInputValues((prev) => {
             const newInputValues: Record<string, string> = { ...prev }; // Preserve existing values
             Object.entries(currentValues).forEach(([id, value]) => {
                 newInputValues[id] = value.toString();
@@ -326,12 +326,13 @@ export default function IngredientList({
     return (
         <div className='md:grid grid-cols-2 gap-8'>
             <div className='flex flex-col'>
-                <div className='flex justify-between items-center mb-4'>
+                <div className='flex justify-between items-center mb-2'>
                     <h3 className='text-sm font-medium text-zinc-600'>
-                        Zutaten anpassen
+                        {/* Zutaten anpassen */}
                     </h3>
                     {canAdjust && (
                         <DailyBalanceButton
+                        className='mt-2'
                             onClick={handleAdjust}
                             isLoading={isDailyBalanceAdjusting}
                         />
@@ -393,14 +394,19 @@ export default function IngredientList({
                                         </span>
                                     </TableCell>
                                     <TableCell
-    className={`w-8 ${
-        inputValues[ingredient.ingredient.id] !== 
-        (originalValues[ingredient.ingredient.id]?.toString() || ingredient.amount.toString())
-            ? 'text-red-700 line-through' 
-            : 'text-zinc-400'
-    }`}>
-    {toGermanNumber(ingredient.amount)}g
-</TableCell>
+                                        className={`w-8 ${
+                                            inputValues[
+                                                ingredient.ingredient.id
+                                            ] !==
+                                            (originalValues[
+                                                ingredient.ingredient.id
+                                            ]?.toString() ||
+                                                ingredient.amount.toString())
+                                                ? 'text-red-700 line-through'
+                                                : 'text-zinc-400'
+                                        }`}>
+                                        {toGermanNumber(ingredient.amount)}g
+                                    </TableCell>
 
                                     <TableCell className='font-medium w-full'>
                                         <div className='flex'>

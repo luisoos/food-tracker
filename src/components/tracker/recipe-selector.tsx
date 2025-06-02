@@ -83,8 +83,8 @@ export default function RecipeSelector({
                 {children}
             </DrawerTrigger>
             <DrawerContent
-                style={{ height: `${scrollAreaSize + 122}px` }}
-                className='md:px-32 xl:px-72 2xl:px-96'>
+                style={{ height: `${scrollAreaSize + 122}px`, maxHeight: '90vh' }}
+                className='md:px-18 xl:px-72 2xl:px-96'>
                 <DrawerHeader className='pb-0'>
                     <DrawerTitle className='text-xl'>
                         <RecipeDrawerTitle
@@ -132,7 +132,7 @@ export default function RecipeSelector({
                                     <ArrowLeft size={16} /> Zurück zur
                                     Rezeptauswahl
                                 </button>
-                                <DrawerDescription>Zutaten:</DrawerDescription>
+                                <DrawerDescription>Zutaten & enthaltene Makronährstoffe:</DrawerDescription>
                                 <IngredientList
                                     recipeId={recipeId!}
                                     dailyPlan={dailyPlan}
