@@ -332,7 +332,7 @@ export default function IngredientList({
                     </h3>
                     {canAdjust && (
                         <DailyBalanceButton
-                        className='mt-2'
+                            className='mt-2'
                             onClick={handleAdjust}
                             isLoading={isDailyBalanceAdjusting}
                         />

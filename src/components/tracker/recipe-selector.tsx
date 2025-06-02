@@ -14,11 +14,11 @@ import IngredientList from './ingredient-list';
 import RecipeList from './recipe-list';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Ban, Plus } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
-import { DailyPlan, Macros, MealType, Recipe } from '@/lib/types';
+import { Macros, MealType, Recipe } from '@/lib/types';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useRecipe } from '@/hooks/useRecipeById';
 import { useScreenWidth } from '@/hooks/useScreenWidth';
+import { useRef } from 'react';
 
 interface RecipeSelectorProps {
     typeName: string;
@@ -75,23 +75,45 @@ export default function RecipeSelector({
         [recipe],
     );
 
-    const scrollAreaSize = screenWidth < 768 ? 500 : 400;
+    // In der Komponente:
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollRef.current && recipeId) {
+            // Zurück zum Anfang scrollen
+            scrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
+        }
+    }, [recipeId]);
 
     return (
         <Drawer onClose={() => resetRecipeSelection()}>
             <DrawerTrigger className='w-full h-full cursor-pointer'>
                 {children}
             </DrawerTrigger>
-            <DrawerContent
-                style={{ height: `${scrollAreaSize + 122}px`, maxHeight: '90vh' }}
-                className='md:px-18 xl:px-72 2xl:px-96'>
-                <DrawerHeader className='pb-0'>
+            <DrawerContent className='md:px-18 xl:px-72 2xl:px-96 flex flex-col max-h-[90vh]'>
+                <DrawerHeader className='pb-0 flex-shrink-0'>
                     <DrawerTitle className='text-xl'>
                         <RecipeDrawerTitle
                             typeName={typeName}
                             recipeName={recipe?.name}
                         />
                     </DrawerTitle>
+                    <button
+                        onClick={() => setRecipeId(undefined)}
+                        className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
+                        <ArrowLeft size={16} /> Zurück zur{' '}
+                        {recipeId ? 'Rezeptauswahl' : 'Tagesübersicht'}
+                    </button>
+                    <DrawerDescription>
+                        {!recipeId
+                            ? 'Wähle ein Rezept aus:'
+                            : 'Zutaten & enthaltene Makronährstoffe:'}
+                    </DrawerDescription>
+                </DrawerHeader>
+
+                <div
+                    ref={scrollRef}
+                    className='flex-grow min-h-0 overflow-y-auto'>
                     <AnimatePresence mode='wait'>
                         {!recipeId ? (
                             <motion.div
@@ -99,25 +121,9 @@ export default function RecipeSelector({
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.3 }}>
-                                <DrawerClose asChild>
-                                    <button
-                                        onClick={() => setRecipeId(undefined)}
-                                        className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
-                                        <ArrowLeft size={16} /> Zurück zur
-                                        Tagesübersicht
-                                    </button>
-                                </DrawerClose>
-                                <DrawerDescription>
-                                    Wähle ein Rezept aus:
-                                </DrawerDescription>
-                                <ScrollArea
-                                    style={{ height: `${scrollAreaSize}px` }}
-                                    className='pr-4 z-10'>
-                                    <RecipeList
-                                        onSelect={handleRecipeSelection}
-                                    />
-                                </ScrollArea>
+                                transition={{ duration: 0.3 }}
+                                className='px-2'>
+                                <RecipeList onSelect={handleRecipeSelection} />
                             </motion.div>
                         ) : (
                             <motion.div
@@ -125,14 +131,8 @@ export default function RecipeSelector({
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
-                                transition={{ duration: 0.3 }}>
-                                <button
-                                    onClick={() => setRecipeId(undefined)}
-                                    className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
-                                    <ArrowLeft size={16} /> Zurück zur
-                                    Rezeptauswahl
-                                </button>
-                                <DrawerDescription>Zutaten & enthaltene Makronährstoffe:</DrawerDescription>
+                                transition={{ duration: 0.3 }}
+                                className='px-2'>
                                 <IngredientList
                                     recipeId={recipeId!}
                                     dailyPlan={dailyPlan}
@@ -144,9 +144,10 @@ export default function RecipeSelector({
                             </motion.div>
                         )}
                     </AnimatePresence>
-                </DrawerHeader>
+                </div>
+
                 {recipeId && (
-                    <DrawerFooter className='flex flex-row justify-between'>
+                    <DrawerFooter className='flex flex-row justify-between flex-shrink-0'>
                         <DrawerClose asChild>
                             <Button variant='outline' className='mr-2'>
                                 <Ban /> Abbrechen

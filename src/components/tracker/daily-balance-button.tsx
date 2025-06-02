@@ -33,7 +33,8 @@ export default function DailyBalanceButton({
                 )}>
                 {isLoading ? (
                     <>
-                        <Loader size={14} className='mr-1.5 animate-spin' /> Anpassen...
+                        <Loader size={14} className='mr-1.5 animate-spin' />{' '}
+                        Anpassen...
                     </>
                 ) : (
                     <>
