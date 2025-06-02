@@ -26,3 +26,11 @@ export function translateMacroToGerman(macro: keyof Macros): string {
 
     return translations[macro];
 }
+
+export function gramOrEgg(gram: string, isEgg: boolean): number {
+    return Number(gram) / (isEgg ? 60 : 1);
+}
+
+export function eggToGram(gram: string, isEgg: boolean): number {
+    return Number(gram) * (isEgg ? 60 : 1);
+}

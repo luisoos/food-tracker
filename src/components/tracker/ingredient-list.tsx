@@ -3,7 +3,7 @@ import { useRecipeAdjustment } from '@/hooks/useRecipeAdjustment';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Input } from '../ui/input';
 import Macronutrients from './macro-view';
-import { cn, toGermanNumber } from '@/lib/utils';
+import { cn, eggToGram, gramOrEgg, toGermanNumber } from '@/lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 import IngredientAdjustBanner from './ingredient-adjust-banner';
 import {
@@ -346,9 +346,7 @@ export default function IngredientList({
                                 editingIngredientId !==
                                     ingredient.ingredient.id;
 
-                            const currentValue =
-                                currentValues[ingredient.ingredient.id] ||
-                                ingredient.amount;
+                            const isEgg = ingredient.ingredient.id === 'egg';
 
                             return (
                                 <TableRow key={index}>
@@ -362,9 +360,9 @@ export default function IngredientList({
                                             type='text'
                                             id={ingredient.ingredient.id}
                                             value={
-                                                inputValues[
+                                                gramOrEgg(inputValues[
                                                     ingredient.ingredient.id
-                                                ] || ''
+                                                ], isEgg) || ''
                                             }
                                             readOnly={isLocked}
                                             onClick={() => {
@@ -374,7 +372,9 @@ export default function IngredientList({
                                             onChange={(e) => {
                                                 if (!isLocked) {
                                                     handleInputChange(
-                                                        e.target.value,
+                                                        eggToGram(
+                                                            e.target.value
+                                                        , isEgg).toString(), 
                                                         ingredient.ingredient
                                                             .id,
                                                     );
@@ -389,9 +389,9 @@ export default function IngredientList({
                                                 }
                                             }}
                                         />
-                                        <span className='h-8 ml-1 flex items-center leading-8'>
+                                        {!isEgg && <span className='h-8 ml-1 flex items-center leading-8'>
                                             g
-                                        </span>
+                                        </span>}
                                     </TableCell>
                                     <TableCell
                                         className={`w-8 ${
@@ -405,12 +405,14 @@ export default function IngredientList({
                                                 ? 'text-red-700 line-through'
                                                 : 'text-zinc-400'
                                         }`}>
-                                        {toGermanNumber(ingredient.amount)}g
+                                        {toGermanNumber(gramOrEgg(
+                                                            ingredient.amount.toString(), isEgg))}
+                                        {!isEgg && 'g'}
                                     </TableCell>
 
                                     <TableCell className='font-medium w-full'>
                                         <div className='flex'>
-                                            {ingredient.ingredient.name}
+                                            {isEgg ? 'Eier (Größe M / 60 g)' : ingredient.ingredient.name}
                                             {reasons[
                                                 ingredient.ingredient.id
                                             ] && (
