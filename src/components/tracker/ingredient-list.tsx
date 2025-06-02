@@ -16,8 +16,10 @@ import {
 import IngredientAmountReason from './ingredient-amount-reason';
 import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
 import { NumberTicker } from '../magicui/number-ticker';
-import { ScrollArea } from '../ui/scroll-area';
 import MacroRing from './macro-ring';
+import { useDailyBalanceAdjustment } from '@/hooks/useDailyBalanceAdjustment';
+import DailyBalanceButton from './daily-balance-button';
+import { CARBS_TARGET, FAT_TARGET, PROTEIN_TARGET } from '@/lib/recipes';
 
 interface IngredientListProps {
     recipeId: string;
@@ -58,19 +60,36 @@ export default function IngredientList({
     const [reasons, setReasons] = useState<Record<string, string>>({});
     const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
+    const [inputValues, setInputValues] = useState<Record<string, string>>({});
+
+    // Add daily balance adjustment
+    const { canAdjust, isAdjusting: isDailyBalanceAdjusting, handleAdjust } = useDailyBalanceAdjustment({
+        recipe: data!,
+        dailyPlan,
+        currentMealType,
+        onAdjustmentComplete: (newValues, newReasons) => {
+            setChangedValues(newValues);
+            setCurrentValues(newValues);
+            setPreviousValues(newValues);
+            setReasons(newReasons);
+        },
+    });
 
     // Hooks
     // State Management for input data
     useEffect(() => {
         if (data) {
             const values: Record<string, number> = {};
+            const inputStrings: Record<string, string> = {};
             data.ingredients.forEach((ingredient) => {
                 values[ingredient.ingredient.id] = ingredient.amount;
+                inputStrings[ingredient.ingredient.id] = ingredient.amount.toString();
             });
             setOriginalValues(values);
             setPreviousValues(values);
             setChangedValues(values);
             setCurrentValues(values);
+            setInputValues(inputStrings);
         }
     }, [data]);
 
@@ -120,6 +139,45 @@ export default function IngredientList({
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
     if (!data) return <div>No recipe selected!</div>;
+
+    // Handle input change
+    function handleInputBlur(ingredientId: string) {
+        let inputValue = inputValues[ingredientId];
+        
+        // Wenn leer, NICHT automatisch auf 0 setzen
+        if (inputValue === '') {
+            inputValue = '0';
+        }
+        
+        const numValue = parseFloat(inputValue) || 0;
+        
+        // Stelle sicher, dass Input und numerischer Wert synchron sind
+        setInputValues(prev => ({
+            ...prev,
+            [ingredientId]: numValue.toString()
+        }));
+        
+        changeIngredientAmount(numValue, ingredientId);
+    }
+    
+    // Handle input change  
+    function handleInputChange(value: string, ingredientId: string) {
+        // Erlaube leeren String und gültige Zahlen
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+            setInputValues(prev => ({
+                ...prev,
+                [ingredientId]: value
+            }));
+            
+            // Nur bei nicht-leeren Werten die numerischen States aktualisieren
+            if (value !== '') {
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue)) {
+                    changeIngredientAmount(numValue, ingredientId);
+                }
+            }
+        }
+    }
 
     // Change ingredient amount
     function changeIngredientAmount(value: number, ingredientId: string) {
@@ -252,7 +310,18 @@ export default function IngredientList({
 
     return (
         <div className='md:grid grid-cols-2 gap-8'>
-                <div className='flex flex-col'>
+            <div className='flex flex-col'>
+                <div className='flex justify-between items-center mb-4'>
+                    <h3 className='text-sm font-medium text-zinc-600'>
+                        Zutaten anpassen
+                    </h3>
+                    {canAdjust && (
+                        <DailyBalanceButton
+                            onClick={handleAdjust}
+                            isLoading={isDailyBalanceAdjusting}
+                        />
+                    )}
+                </div>
                 <Table className='max-w-xl'>
                     <TableBody>
                         {data.ingredients.map((ingredient, index) => {
@@ -274,10 +343,9 @@ export default function IngredientList({
                                                 isLocked &&
                                                     'bg-zinc-100 text-zinc-500',
                                             )}
-                                            type='number'
+                                            type='text'
                                             id={ingredient.ingredient.id}
-                                            value={currentValue}
-                                            min={0}
+                                            value={inputValues[ingredient.ingredient.id] || ''}
                                             readOnly={isLocked}
                                             onClick={() => {
                                                 if (isLocked)
@@ -285,11 +353,12 @@ export default function IngredientList({
                                             }}
                                             onChange={(e) => {
                                                 if (!isLocked) {
-                                                    changeIngredientAmount(
-                                                        Number(e.target.value),
-                                                        ingredient.ingredient
-                                                            .id,
-                                                    );
+                                                    handleInputChange(e.target.value, ingredient.ingredient.id); 
+                                                }
+                                            }}
+                                            onBlur={() => {
+                                                if (!isLocked) {
+                                                    handleInputBlur(ingredient.ingredient.id);
                                                 }
                                             }}
                                         />
@@ -345,12 +414,12 @@ export default function IngredientList({
                 <div className='md:hidden flex items-center gap-4 justify-center py-2'>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(totalMacros.carbs / 264) * 100}
+                                        value={(totalMacros.carbs / CARBS_TARGET) * 100}
                                         color='#e0d83c'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(
-                                                (totalMacros.carbs / 264) * 100,
+                                                (totalMacros.carbs / CARBS_TARGET) * 100,
                                             )}{' '}
                                             %
                                         </span>
@@ -361,12 +430,12 @@ export default function IngredientList({
                                 </div>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(totalMacros.protein / 120) * 100}
+                                        value={(totalMacros.protein / PROTEIN_TARGET) * 100}
                                         color='#30bc29'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(
-                                                (totalMacros.protein / 120) * 100,
+                                                (totalMacros.protein / PROTEIN_TARGET) * 100,
                                             )}{' '}
                                             %
                                         </span>
@@ -377,12 +446,12 @@ export default function IngredientList({
                                 </div>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(totalMacros.fat / 85) * 100}
+                                        value={(totalMacros.fat / FAT_TARGET) * 100}
                                         color='#e0423c'
                                         size={48}>
                                         <span className='text-xs font-semibold'>
                                             {Math.round(
-                                                (totalMacros.fat / 85) * 100,
+                                                (totalMacros.fat / FAT_TARGET) * 100,
                                             )}{' '}
                                             %
                                         </span>

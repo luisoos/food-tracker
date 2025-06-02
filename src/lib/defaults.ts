@@ -6,7 +6,12 @@ const DEFAULT_MACRO_GOAL = {
     protein: PROTEIN_TARGET, // grams
     carbs: CARBS_TARGET, // grams
     fat: FAT_TARGET, // grams
-    plusMinusPercentage: 10, // 10% deviation allowed
+    plusMinusPercentage: {
+        calories: 2.7, // ±60 kcal bei 2200 = 2.7%
+        protein: 3.3,  // ±5g bei 150g = 3.3%
+        fat: 8.3,      // ±5g bei 60g = 8.3%
+        carbs: 5       // Standard-Toleranz für Kohlenhydrate
+    }
 };
 
 const DEFAULT_DAILY_GOAL = {

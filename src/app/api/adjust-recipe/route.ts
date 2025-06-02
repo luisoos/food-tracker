@@ -3,14 +3,27 @@ import adjustRecipe from '@/lib/algorithm/adjust';
 import { z } from 'zod';
 import { MealType } from '@/lib/types';
 
+// Schema for consumed macros (must be positive)
 const MacrosSchema = z.object({
     protein: z.number().min(0),
     carbs: z.number().min(0),
     fat: z.number().min(0),
 });
 
+// Schema for remaining macros (can be negative)
+const RemainingMacrosSchema = z.object({
+    protein: z.number(), // Can be negative
+    carbs: z.number(),   // Can be negative
+    fat: z.number(),     // Can be negative
+});
+
 const MacroGoalSchema = MacrosSchema.extend({
-    plusMinusPercentage: z.number().min(0).max(100),
+    plusMinusPercentage: z.object({
+        calories: z.number().min(0).max(100),
+        protein: z.number().min(0).max(100),
+        fat: z.number().min(0).max(100),
+        carbs: z.number().min(0).max(100),
+    }),
 });
 
 const DailyGoalSchema = z.object({
@@ -58,8 +71,8 @@ const DailyPlanSchema = z.object({
     date: z.string(),
     goal: DailyGoalSchema,
     meals: z.array(MealSchema),
-    totalMacros: MacrosSchema.optional(),
-    remainingMacros: MacrosSchema.optional(),
+    totalMacros: MacrosSchema.optional(),      // Must be positive
+    remainingMacros: RemainingMacrosSchema.optional(), // Can be negative
 });
 
 const AdjustmentInputSchema = z.object({
@@ -74,6 +87,7 @@ export async function POST(req: NextRequest) {
         const rawBody = await req.json();
 
         const validationResult = AdjustmentInputSchema.safeParse(rawBody);
+        console.log(rawBody)
 
         if (!validationResult.success) {
             return NextResponse.json(

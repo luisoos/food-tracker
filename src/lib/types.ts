@@ -16,7 +16,12 @@ interface Macros {
 }
 
 interface MacroGoal extends Macros {
-    plusMinusPercentage: number; // Erlaubte Abweichung in Prozent
+    plusMinusPercentage: {
+        calories: number;
+        protein: number;
+        fat: number;
+        carbs: number;
+    };
 }
 
 interface DailyGoal {

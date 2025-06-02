@@ -1,9 +1,9 @@
 import { Ingredient, Recipe } from './types';
 
 // Konstanten für normale Makronährstoff- und Kalorienziele
-const PROTEIN_TARGET = 100; // Protein in Gramm pro Tag
-const CARBS_TARGET = 400; // Kohlenhydrate in Gramm pro Tag
-const FAT_TARGET = 70; // Fett in Gramm pro Tag
+const PROTEIN_TARGET = 150; // Protein in Gramm pro Tag
+const CARBS_TARGET = 265; // Kohlenhydrate in Gramm pro Tag
+const FAT_TARGET = 60; // Fett in Gramm pro Tag
 
 // Hard-gecodete Rezepte als Beispiele
 // Zutaten
