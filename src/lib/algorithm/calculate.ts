@@ -93,10 +93,11 @@ export function isWithinGoal(
     goal: DailyGoal,
 ): boolean {
     const target = goal.macros[macro];
-    const tolerance = target * (goal.macros.plusMinusPercentage / 100);
+    const tolerance = target * (goal.macros.plusMinusPercentage[macro] / 100);
 
     return (
-        currentValue >= target - tolerance && currentValue <= target + tolerance
+        currentValue >= target - tolerance && 
+        currentValue <= target + tolerance
     );
 }
 
