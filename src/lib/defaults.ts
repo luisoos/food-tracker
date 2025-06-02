@@ -8,10 +8,10 @@ const DEFAULT_MACRO_GOAL = {
     fat: FAT_TARGET, // grams
     plusMinusPercentage: {
         calories: 2.7, // ±60 kcal bei 2200 = 2.7%
-        protein: 3.3,  // ±5g bei 150g = 3.3%
-        fat: 8.3,      // ±5g bei 60g = 8.3%
-        carbs: 5       // Standard-Toleranz für Kohlenhydrate
-    }
+        protein: 3.3, // ±5g bei 150g = 3.3%
+        fat: 8.3, // ±5g bei 60g = 8.3%
+        carbs: 5, // Standard-Toleranz für Kohlenhydrate
+    },
 };
 
 const DEFAULT_DAILY_GOAL = {

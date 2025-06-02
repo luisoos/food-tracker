@@ -1,18 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import {
-    Pie,
-    PieChart,
-    Label,
-    Tooltip,
-} from 'recharts';
+import { Pie, PieChart, Label, Tooltip } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    ChartConfig,
-    ChartContainer,
-} from '@/components/ui/chart';
+import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 import Macronutrients from './macro-view';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
@@ -64,59 +56,59 @@ export default function TotalCalories() {
                     <ChartContainer
                         config={totalCalorieChartConfig}
                         className='w-full h-56 mb-4'>
-                            <PieChart>
-                                <Tooltip content={<CustomTooltip />} />
-                                <Pie
-                                    data={totalCalorieData}
-                                    dataKey='value'
-                                    nameKey='type'
-                                    innerRadius={60}
-                                    outerRadius={100}
-                                    startAngle={90}
-                                    endAngle={-270}
-                                    cornerRadius={12}
-                                    isAnimationActive={false}
-                                    stroke='var(--border)'
-                                    paddingAngle={2}
-                                    strokeWidth={2}>
-                                    <Label
-                                        position='center'
-                                        content={({ viewBox }) => {
-                                            if (
-                                                viewBox &&
-                                                'cx' in viewBox &&
-                                                'cy' in viewBox
-                                            ) {
-                                                return (
-                                                    <text
+                        <PieChart>
+                            <Tooltip content={<CustomTooltip />} />
+                            <Pie
+                                data={totalCalorieData}
+                                dataKey='value'
+                                nameKey='type'
+                                innerRadius={60}
+                                outerRadius={100}
+                                startAngle={90}
+                                endAngle={-270}
+                                cornerRadius={12}
+                                isAnimationActive={false}
+                                stroke='var(--border)'
+                                paddingAngle={2}
+                                strokeWidth={2}>
+                                <Label
+                                    position='center'
+                                    content={({ viewBox }) => {
+                                        if (
+                                            viewBox &&
+                                            'cx' in viewBox &&
+                                            'cy' in viewBox
+                                        ) {
+                                            return (
+                                                <text
+                                                    x={viewBox.cx}
+                                                    y={viewBox.cy}
+                                                    textAnchor='middle'
+                                                    dominantBaseline='middle'>
+                                                    <tspan
                                                         x={viewBox.cx}
                                                         y={viewBox.cy}
-                                                        textAnchor='middle'
-                                                        dominantBaseline='middle'>
-                                                        <tspan
-                                                            x={viewBox.cx}
-                                                            y={viewBox.cy}
-                                                            className='fill-foreground text-3xl font-bold'>
-                                                            {Math.round(
-                                                                totalCalories,
-                                                            ).toLocaleString()}
-                                                        </tspan>
-                                                        <tspan
-                                                            x={viewBox.cx}
-                                                            y={
-                                                                (viewBox.cy ||
-                                                                    0) + 24
-                                                            }
-                                                            className='fill-muted-foreground text-base'>
-                                                            / {goal.calories} kcal
-                                                        </tspan>
-                                                    </text>
-                                                );
-                                            }
-                                        }}
-                                    />
-                                </Pie>
-                            </PieChart>
+                                                        className='fill-foreground text-3xl font-bold'>
+                                                        {Math.round(
+                                                            totalCalories,
+                                                        ).toLocaleString()}
+                                                    </tspan>
+                                                    <tspan
+                                                        x={viewBox.cx}
+                                                        y={
+                                                            (viewBox.cy || 0) +
+                                                            24
+                                                        }
+                                                        className='fill-muted-foreground text-base'>
+                                                        / {goal.calories} kcal
+                                                    </tspan>
+                                                </text>
+                                            );
+                                        }
+                                    }}
+                                />
+                            </Pie>
+                        </PieChart>
                     </ChartContainer>
                 </div>
 
@@ -146,7 +138,8 @@ function CustomTooltip({
             <div className='rounded-lg p-2 shadow-lg backdrop-blur-lg bg-white/20 border border-white/30'>
                 <p className='font-medium'>{data.type}</p>
                 <p className='text-sm text-zinc-600'>
-                    {Math.round(data.value)} <span className="font-mono">kcal</span>
+                    {Math.round(data.value)}{' '}
+                    <span className='font-mono'>kcal</span>
                 </p>
             </div>
         );

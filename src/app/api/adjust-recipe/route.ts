@@ -13,8 +13,8 @@ const MacrosSchema = z.object({
 // Schema for remaining macros (can be negative)
 const RemainingMacrosSchema = z.object({
     protein: z.number(), // Can be negative
-    carbs: z.number(),   // Can be negative
-    fat: z.number(),     // Can be negative
+    carbs: z.number(), // Can be negative
+    fat: z.number(), // Can be negative
 });
 
 const MacroGoalSchema = MacrosSchema.extend({
@@ -71,7 +71,7 @@ const DailyPlanSchema = z.object({
     date: z.string(),
     goal: DailyGoalSchema,
     meals: z.array(MealSchema),
-    totalMacros: MacrosSchema.optional(),      // Must be positive
+    totalMacros: MacrosSchema.optional(), // Must be positive
     remainingMacros: RemainingMacrosSchema.optional(), // Can be negative
 });
 
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         const rawBody = await req.json();
 
         const validationResult = AdjustmentInputSchema.safeParse(rawBody);
-        console.log(rawBody)
+        console.log(rawBody);
 
         if (!validationResult.success) {
             return NextResponse.json(

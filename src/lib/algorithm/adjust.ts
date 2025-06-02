@@ -138,10 +138,10 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             adjustedDeficit,
         );
 
-        // Übernehme Top 3 Anpassungen
+        // Übernehme Top 5 Anpassungen
         if (bestOptions.success) {
-            bestOptions.data.slice(0, 3).forEach((option) => {
-                const target = adjustedRecipe.ingredients.find(
+            bestOptions.data.slice(0, 5).forEach((option) => {
+                const target = recipe.ingredients.find(
                     (ri) => ri.ingredient.id === option.ingredientId,
                 );
 
@@ -149,12 +149,12 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
 
                 const newAmount = Math.max(0, target.amount + option.amount);
 
-                target.amount = newAmount;
                 target.originalAmount = target.amount;
+                target.amount = newAmount;
 
                 adjustments.push({
                     ingredientId: option.ingredientId,
-                    originalAmount: target.amount,
+                    originalAmount: target.originalAmount,
                     newAmount,
                     reason: `${option.macro}-Ausgleich vom Tag`,
                 });
@@ -163,6 +163,8 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             adjustmentFeedback = bestOptions.error;
         }
     }
+
+    console.log(adjustments);
 
     // Aktualisiere Gesamtwerte des Rezepts
     adjustedRecipe.totalMacros = calculateRecipeMacros(adjustedRecipe);

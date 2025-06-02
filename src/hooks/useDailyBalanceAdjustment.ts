@@ -1,12 +1,21 @@
 import { useCallback, useMemo } from 'react';
-import { DailyPlan, Macros, MealType, Recipe, ParentAdjustment } from '@/lib/types';
+import {
+    DailyPlan,
+    Macros,
+    MealType,
+    Recipe,
+    ParentAdjustment,
+} from '@/lib/types';
 import { useRecipeAdjustment } from './useRecipeAdjustment';
 
 interface UseDailyBalanceAdjustmentProps {
     recipe: Recipe;
     dailyPlan: DailyPlan | null;
     currentMealType: MealType;
-    onAdjustmentComplete?: (newValues: Record<string, number>, newReasons: Record<string, string>) => void;
+    onAdjustmentComplete?: (
+        newValues: Record<string, number>,
+        newReasons: Record<string, string>,
+    ) => void;
 }
 
 interface UseDailyBalanceAdjustmentResult {
@@ -18,8 +27,8 @@ interface UseDailyBalanceAdjustmentResult {
 
 const MACRO_THRESHOLDS = {
     protein: 5, // 5g minimum deficit
-    carbs: 10,  // 10g minimum deficit
-    fat: 3,     // 3g minimum deficit
+    carbs: 10, // 10g minimum deficit
+    fat: 3, // 3g minimum deficit
 };
 
 export function useDailyBalanceAdjustment({
@@ -48,8 +57,8 @@ export function useDailyBalanceAdjustment({
 
         return {
             protein: Math.max(0, 120 - consumedMacros.protein), // 120g protein target
-            carbs: Math.max(0, 264 - consumedMacros.carbs),     // 264g carbs target
-            fat: Math.max(0, 85 - consumedMacros.fat),          // 85g fat target
+            carbs: Math.max(0, 264 - consumedMacros.carbs), // 264g carbs target
+            fat: Math.max(0, 85 - consumedMacros.fat), // 85g fat target
         };
     }, [dailyPlan]);
 
@@ -74,14 +83,22 @@ export function useDailyBalanceAdjustment({
                 false, // not a revert
             );
 
-            if (result && result.adjustments.success && Array.isArray(result.adjustments.data)) {
+            if (
+                result &&
+                result.adjustments.success &&
+                Array.isArray(result.adjustments.data)
+            ) {
                 const newValues: Record<string, number> = {};
                 const newReasons: Record<string, string> = {};
 
-                result.adjustments.data.forEach((adjusted: ParentAdjustment) => {
-                    newValues[adjusted.ingredientId] = Math.round(adjusted.newAmount);
-                    newReasons[adjusted.ingredientId] = adjusted.reason;
-                });
+                result.adjustments.data.forEach(
+                    (adjusted: ParentAdjustment) => {
+                        newValues[adjusted.ingredientId] = Math.round(
+                            adjusted.newAmount,
+                        );
+                        newReasons[adjusted.ingredientId] = adjusted.reason;
+                    },
+                );
 
                 // Call the callback with the new values and reasons
                 onAdjustmentComplete?.(newValues, newReasons);
@@ -89,7 +106,14 @@ export function useDailyBalanceAdjustment({
         } catch (error) {
             console.error('Failed to adjust recipe for daily balance:', error);
         }
-    }, [recipe, dailyPlan, currentMealType, canAdjust, adjustRecipe, onAdjustmentComplete]);
+    }, [
+        recipe,
+        dailyPlan,
+        currentMealType,
+        canAdjust,
+        adjustRecipe,
+        onAdjustmentComplete,
+    ]);
 
     return {
         canAdjust,
@@ -97,4 +121,4 @@ export function useDailyBalanceAdjustment({
         isAdjusting,
         handleAdjust,
     };
-} 
+}

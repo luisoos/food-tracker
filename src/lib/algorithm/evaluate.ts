@@ -30,9 +30,11 @@ export function findBestIngredientsToAdjust(
 ): EvaluationResult {
     const adjustments: Adjustment[] = [];
     const ingredientTotals: Record<string, number> = {}; // Track finale Mengen
-    
+
     // Find original recipe by matching ID
-    const originalRecipe = Object.values(recipes).find(r => r.id === recipe.id);
+    const originalRecipe = Object.values(recipes).find(
+        (r) => r.id === recipe.id,
+    );
     if (!originalRecipe) {
         return {
             success: false,
@@ -42,7 +44,7 @@ export function findBestIngredientsToAdjust(
 
     // Create map of original amounts
     const originalAmounts: Record<string, number> = {};
-    originalRecipe.ingredients.forEach(ri => {
+    originalRecipe.ingredients.forEach((ri) => {
         originalAmounts[ri.ingredient.id] = ri.amount;
     });
 
@@ -78,14 +80,16 @@ export function findBestIngredientsToAdjust(
                 if (ri.ingredient.macrosPer100g[macro] === 0) return;
 
                 const macroPerGram = ri.ingredient.macrosPer100g[macro] / 100;
-                const direction = macroDifference[macro] < 0 ? 1 : -1;
+                const direction = macroDifference[macro] > 0 ? 1 : -1;
                 const requiredAmount =
                     Math.abs(macroDifference[macro] / macroPerGram) * direction;
 
                 // Menge begrenzen (max. 250% der Originalmenge aus recipes.ts)
                 const MAX_ADJUSTMENT_FACTOR = 2.5;
-                const maxAllowedAmount = originalAmounts[ri.ingredient.id] * MAX_ADJUSTMENT_FACTOR;
-                const minAllowedAmount = originalAmounts[ri.ingredient.id] * 0.1; // Mindestens 10%
+                const maxAllowedAmount =
+                    originalAmounts[ri.ingredient.id] * MAX_ADJUSTMENT_FACTOR;
+                const minAllowedAmount =
+                    originalAmounts[ri.ingredient.id] * 0.1; // Mindestens 10%
 
                 // Neue finale Menge
                 const newTotalAmount =

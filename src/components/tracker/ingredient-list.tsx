@@ -44,6 +44,7 @@ export default function IngredientList({
     const [editingIngredientId, setEditingIngredientId] = useState<
         string | null
     >(null);
+    const [inputValues, setInputValues] = useState<Record<string, string>>({});
     const [originalValues, setOriginalValues] = useState<
         Record<string, number>
     >({});
@@ -60,10 +61,13 @@ export default function IngredientList({
     const [reasons, setReasons] = useState<Record<string, string>>({});
     const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
-    const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
     // Add daily balance adjustment
-    const { canAdjust, isAdjusting: isDailyBalanceAdjusting, handleAdjust } = useDailyBalanceAdjustment({
+    const {
+        canAdjust,
+        isAdjusting: isDailyBalanceAdjusting,
+        handleAdjust,
+    } = useDailyBalanceAdjustment({
         recipe: data!,
         dailyPlan,
         currentMealType,
@@ -83,7 +87,8 @@ export default function IngredientList({
             const inputStrings: Record<string, string> = {};
             data.ingredients.forEach((ingredient) => {
                 values[ingredient.ingredient.id] = ingredient.amount;
-                inputStrings[ingredient.ingredient.id] = ingredient.amount.toString();
+                inputStrings[ingredient.ingredient.id] =
+                    ingredient.amount.toString();
             });
             setOriginalValues(values);
             setPreviousValues(values);
@@ -92,6 +97,16 @@ export default function IngredientList({
             setInputValues(inputStrings);
         }
     }, [data]);
+
+    useEffect(() => {
+        setInputValues(prev => {
+            const newInputValues: Record<string, string> = { ...prev }; // Preserve existing values
+            Object.entries(currentValues).forEach(([id, value]) => {
+                newInputValues[id] = value.toString();
+            });
+            return newInputValues;
+        });
+    }, [currentValues]);
 
     // Calculate total macros
     const totalMacros = useMemo(() => {
@@ -143,32 +158,32 @@ export default function IngredientList({
     // Handle input change
     function handleInputBlur(ingredientId: string) {
         let inputValue = inputValues[ingredientId];
-        
+
         // Wenn leer, NICHT automatisch auf 0 setzen
         if (inputValue === '') {
             inputValue = '0';
         }
-        
+
         const numValue = parseFloat(inputValue) || 0;
-        
+
         // Stelle sicher, dass Input und numerischer Wert synchron sind
-        setInputValues(prev => ({
+        setInputValues((prev) => ({
             ...prev,
-            [ingredientId]: numValue.toString()
+            [ingredientId]: numValue.toString(),
         }));
-        
+
         changeIngredientAmount(numValue, ingredientId);
     }
-    
-    // Handle input change  
+
+    // Handle input change
     function handleInputChange(value: string, ingredientId: string) {
         // Erlaube leeren String und gültige Zahlen
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
-            setInputValues(prev => ({
+            setInputValues((prev) => ({
                 ...prev,
-                [ingredientId]: value
+                [ingredientId]: value,
             }));
-            
+
             // Nur bei nicht-leeren Werten die numerischen States aktualisieren
             if (value !== '') {
                 const numValue = parseFloat(value);
@@ -345,7 +360,11 @@ export default function IngredientList({
                                             )}
                                             type='text'
                                             id={ingredient.ingredient.id}
-                                            value={inputValues[ingredient.ingredient.id] || ''}
+                                            value={
+                                                inputValues[
+                                                    ingredient.ingredient.id
+                                                ] || ''
+                                            }
                                             readOnly={isLocked}
                                             onClick={() => {
                                                 if (isLocked)
@@ -353,12 +372,19 @@ export default function IngredientList({
                                             }}
                                             onChange={(e) => {
                                                 if (!isLocked) {
-                                                    handleInputChange(e.target.value, ingredient.ingredient.id); 
+                                                    handleInputChange(
+                                                        e.target.value,
+                                                        ingredient.ingredient
+                                                            .id,
+                                                    );
                                                 }
                                             }}
                                             onBlur={() => {
                                                 if (!isLocked) {
-                                                    handleInputBlur(ingredient.ingredient.id);
+                                                    handleInputBlur(
+                                                        ingredient.ingredient
+                                                            .id,
+                                                    );
                                                 }
                                             }}
                                         />
@@ -367,9 +393,15 @@ export default function IngredientList({
                                         </span>
                                     </TableCell>
                                     <TableCell
-                                        className={`w-8 ${changedValues[ingredient.ingredient.id] !== originalValues[ingredient.ingredient.id] ? 'text-red-700 line-through' : 'text-zinc-400'}`}>
-                                        {toGermanNumber(ingredient.amount)}g
-                                    </TableCell>
+    className={`w-8 ${
+        inputValues[ingredient.ingredient.id] !== 
+        (originalValues[ingredient.ingredient.id]?.toString() || ingredient.amount.toString())
+            ? 'text-red-700 line-through' 
+            : 'text-zinc-400'
+    }`}>
+    {toGermanNumber(ingredient.amount)}g
+</TableCell>
+
                                     <TableCell className='font-medium w-full'>
                                         <div className='flex'>
                                             {ingredient.ingredient.name}
@@ -406,68 +438,71 @@ export default function IngredientList({
                 )}
             </div>
             <div>
-                <div className="max-md:hidden"><Macronutrients
-                    carbs={totalMacros.carbs}
-                    protein={totalMacros.protein}
-                    fat={totalMacros.fat}
-                /></div> 
+                <div className='max-md:hidden'>
+                    <Macronutrients
+                        carbs={totalMacros.carbs}
+                        protein={totalMacros.protein}
+                        fat={totalMacros.fat}
+                    />
+                </div>
                 <div className='md:hidden flex items-center gap-4 justify-center py-2'>
-                                <div className='flex flex-col items-center'>
-                                    <MacroRing
-                                        value={(totalMacros.carbs / CARBS_TARGET) * 100}
-                                        color='#e0d83c'
-                                        size={48}>
-                                        <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (totalMacros.carbs / CARBS_TARGET) * 100,
-                                            )}{' '}
-                                            %
-                                        </span>
-                                    </MacroRing>
-                                    <span className='text-xs mt-1 text-zinc-500'>
-                                        KH
-                                    </span>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <MacroRing
-                                        value={(totalMacros.protein / PROTEIN_TARGET) * 100}
-                                        color='#30bc29'
-                                        size={48}>
-                                        <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (totalMacros.protein / PROTEIN_TARGET) * 100,
-                                            )}{' '}
-                                            %
-                                        </span>
-                                    </MacroRing>
-                                    <span className='text-xs mt-1 text-zinc-500'>
-                                        Protein
-                                    </span>
-                                </div>
-                                <div className='flex flex-col items-center'>
-                                    <MacroRing
-                                        value={(totalMacros.fat / FAT_TARGET) * 100}
-                                        color='#e0423c'
-                                        size={48}>
-                                        <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (totalMacros.fat / FAT_TARGET) * 100,
-                                            )}{' '}
-                                            %
-                                        </span>
-                                    </MacroRing>
-                                    <span className='text-xs mt-1 text-zinc-500'>
-                                        Fett
-                                    </span>
-                                </div>
-                            </div>
-                <div className="md:mt-20 text-right"><NumberTicker
-                    value={totalCalories}
-                    startValue={Math.round(totalCalories - (totalCalories / 20))}
-                    decimalPlaces={0}
-                    className='whitespace-pre-wrap text-3xl font-bold tracking-tighter text-black dark:text-white'
-                />
-                <span className='font-mono'> kcal</span></div>
+                    <div className='flex flex-col items-center'>
+                        <MacroRing
+                            value={(totalMacros.carbs / CARBS_TARGET) * 100}
+                            color='#e0d83c'
+                            size={48}>
+                            <span className='text-xs font-semibold'>
+                                {Math.round(
+                                    (totalMacros.carbs / CARBS_TARGET) * 100,
+                                )}{' '}
+                                %
+                            </span>
+                        </MacroRing>
+                        <span className='text-xs mt-1 text-zinc-500'>KH</span>
+                    </div>
+                    <div className='flex flex-col items-center'>
+                        <MacroRing
+                            value={(totalMacros.protein / PROTEIN_TARGET) * 100}
+                            color='#30bc29'
+                            size={48}>
+                            <span className='text-xs font-semibold'>
+                                {Math.round(
+                                    (totalMacros.protein / PROTEIN_TARGET) *
+                                        100,
+                                )}{' '}
+                                %
+                            </span>
+                        </MacroRing>
+                        <span className='text-xs mt-1 text-zinc-500'>
+                            Protein
+                        </span>
+                    </div>
+                    <div className='flex flex-col items-center'>
+                        <MacroRing
+                            value={(totalMacros.fat / FAT_TARGET) * 100}
+                            color='#e0423c'
+                            size={48}>
+                            <span className='text-xs font-semibold'>
+                                {Math.round(
+                                    (totalMacros.fat / FAT_TARGET) * 100,
+                                )}{' '}
+                                %
+                            </span>
+                        </MacroRing>
+                        <span className='text-xs mt-1 text-zinc-500'>Fett</span>
+                    </div>
+                </div>
+                <div className='md:mt-20 text-right'>
+                    <NumberTicker
+                        value={totalCalories}
+                        startValue={Math.round(
+                            totalCalories - totalCalories / 20,
+                        )}
+                        decimalPlaces={0}
+                        className='whitespace-pre-wrap text-3xl font-bold tracking-tighter text-black dark:text-white'
+                    />
+                    <span className='font-mono'> kcal</span>
+                </div>
             </div>
         </div>
     );
