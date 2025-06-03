@@ -1,6 +1,7 @@
 import { useRecipes } from '@/hooks/useRecipes';
 import { Recipe } from '@/lib/types';
 import MacroRing from './macro-ring';
+import { gramOrEgg } from '@/lib/utils';
 
 export default function RecipeList({
     onSelect,
@@ -50,7 +51,7 @@ export default function RecipeList({
                                 {recipe.ingredients.map(
                                     ({ ingredient, amount }, index, array) => (
                                         <span key={ingredient.id}>
-                                            {ingredient.name} ({amount}g)
+                                            {ingredient.name} ({ingredient.id === 'egg' ? gramOrEgg(amount.toString(), true) + ' Stk.' : amount + 'g'})
                                             {index < array.length - 1
                                                 ? ', '
                                                 : ''}
