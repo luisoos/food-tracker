@@ -25,13 +25,8 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     const adjustments: ParentAdjustment[] = [];
     let adjustmentFeedback: string = 'Unbekannter Fehler';
 
-    const mealOrder: MealType[] = [
-        MealType.BREAKFAST,
-        MealType.LUNCH,
-        MealType.DINNER,
-    ];
-    const currentMealIndex = mealOrder.indexOf(currentMealType);
-    const remainingMeals = mealOrder.slice(currentMealIndex + 1);
+    const alreadyEatenMeals = dailyPlan.meals.length;
+    const remainingMeals = Object.keys(MealType).length - alreadyEatenMeals - 1;
 
     // Fall 1: Benutzer hat Zutatenmenge manuell geändert
     if (changedIngredient) {
@@ -103,7 +98,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
 
         // Dynamischer Kompensationsfaktor basierend auf verbleibenden Mahlzeiten
         const compensationFactor =
-            remainingMeals.length > 0 ? -(1 / (remainingMeals.length + 1)) : -1; // Letzte Mahlzeit muss vollständig kompensieren
+            remainingMeals > 0 ? -(1 / (remainingMeals + 1)) : -1; // Letzte Mahlzeit muss vollständig kompensieren
 
         const adjustedDeficit = {
             protein: remaining.protein * compensationFactor,
@@ -111,10 +106,15 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
             fat: remaining.fat * compensationFactor,
         };
 
-        // Prüfung mit angepasster Toleranzlogik
+        /**
+         * Checks if the current macro deficit can still be compensated in the remaining meals.
+         * @param macro The macronutrient key (e.g., protein, carbs, fat)
+         * @param value The current deficit value for this macro
+         * @returns {boolean} True if the deficit can be compensated later, false if adjustment is needed now
+         */
         const canCompensateLater = (macro: keyof Macros, value: number) => {
             const maxFutureCompensation =
-                remainingMeals.length * getMaxCompensation(macro);
+                remainingMeals * getMaxCompensation(macro);
             return Math.abs(value) <= maxFutureCompensation;
         };
 

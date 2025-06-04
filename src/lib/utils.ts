@@ -28,9 +28,9 @@ export function translateMacroToGerman(macro: keyof Macros): string {
 }
 
 export function gramOrEgg(gram: string, isEgg: boolean): number {
-    return Number(gram) / (isEgg ? 60 : 1);
+    return Math.round(Number(gram) / (isEgg ? 60 : 1));
 }
 
 export function eggToGram(gram: string, isEgg: boolean): number {
-    return Number(gram) * (isEgg ? 60 : 1);
+    return Math.round(Number(gram) * (isEgg ? 60 : 1));
 }

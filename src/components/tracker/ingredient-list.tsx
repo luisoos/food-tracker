@@ -20,6 +20,7 @@ import MacroRing from './macro-ring';
 import { useDailyBalanceAdjustment } from '@/hooks/useDailyBalanceAdjustment';
 import DailyBalanceButton from './daily-balance-button';
 import { CARBS_TARGET, FAT_TARGET, PROTEIN_TARGET } from '@/lib/recipes';
+import { toast } from 'sonner';
 
 interface IngredientListProps {
     recipeId: string;
@@ -308,6 +309,9 @@ export default function IngredientList({
                     setPreviousValues(newValues);
                     setReasons(newReasons);
                 }
+            } else if (result && !result.adjustments.success) {
+                // Notify user, why nothing was changed
+                toast(result.adjustments.error)
             }
         } catch (error) {
             console.error('Failed to adjust recipe:', error);

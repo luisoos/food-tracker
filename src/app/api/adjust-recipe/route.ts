@@ -54,11 +54,12 @@ const RecipeSchema = z.object({
 });
 
 const MealTypeSchema = z
-    .enum(['breakfast', 'lunch', 'dinner'])
+    .enum(['breakfast', 'lunch', 'dinner', 'snacks'])
     .transform((val) => {
         if (val === 'breakfast') return MealType.BREAKFAST;
         if (val === 'lunch') return MealType.LUNCH;
-        return MealType.DINNER;
+        if (val === 'dinner') return MealType.DINNER;
+        return MealType.SNACKS;
     });
 
 const MealSchema = z.object({
@@ -87,7 +88,6 @@ export async function POST(req: NextRequest) {
         const rawBody = await req.json();
 
         const validationResult = AdjustmentInputSchema.safeParse(rawBody);
-        console.log(rawBody);
 
         if (!validationResult.success) {
             return NextResponse.json(

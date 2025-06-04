@@ -26,6 +26,7 @@ export default function MealSelector() {
     const [breakfast, setBreakfast] = useState<Meal>();
     const [lunch, setLunch] = useState<Meal>();
     const [dinner, setDinner] = useState<Meal>();
+    const [snacks, setSnacks] = useState<Meal>();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -43,6 +44,7 @@ export default function MealSelector() {
             setBreakfast(undefined);
             setLunch(undefined);
             setDinner(undefined);
+            setSnacks(undefined);
 
             // Set meals based on type
             dailyPlan.meals.forEach((meal) => {
@@ -55,6 +57,9 @@ export default function MealSelector() {
                         break;
                     case MealType.DINNER:
                         setDinner(meal);
+                        break;
+                    case MealType.SNACKS:
+                        setSnacks(meal);
                         break;
                     default:
                         console.error('Meal that was not the right type.');
@@ -75,7 +80,7 @@ export default function MealSelector() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className='grid grid-cols-3 max-md:grid-cols-1 gap-4'>
+                <div className='grid grid-cols-2 lg:grid-cols-4 max-md:grid-cols-1 gap-4'>
                     <MealDisplay
                         type={MealType.BREAKFAST}
                         typeName='Frühstück'
@@ -94,6 +99,13 @@ export default function MealSelector() {
                         type={MealType.DINNER}
                         typeName='Abendessen'
                         content={dinner}
+                        onRemove={handleRemoveMeal}
+                        isLoading={isLoading}
+                    />
+                    <MealDisplay
+                        type={MealType.SNACKS}
+                        typeName='Snacks'
+                        content={snacks}
                         onRemove={handleRemoveMeal}
                         isLoading={isLoading}
                     />

@@ -59,6 +59,7 @@ enum MealType {
     BREAKFAST = 'breakfast',
     LUNCH = 'lunch',
     DINNER = 'dinner',
+    SNACKS = 'snacks',
 }
 
 // Mahlzeit
