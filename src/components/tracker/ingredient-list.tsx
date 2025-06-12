@@ -459,12 +459,12 @@ export default function IngredientList({
                 <div className='md:hidden flex items-center gap-4 justify-center py-2'>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={(totalMacros.carbs / CARBS_TARGET) * 100}
+                            value={CARBS_TARGET ? (totalMacros.carbs / CARBS_TARGET) * 100 : 0}
                             color='#e0d83c'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    (totalMacros.carbs / CARBS_TARGET) * 100,
+                                    CARBS_TARGET ? (totalMacros.carbs / CARBS_TARGET) * 100 : 0,
                                 )}{' '}
                                 %
                             </span>
@@ -473,13 +473,12 @@ export default function IngredientList({
                     </div>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={(totalMacros.protein / PROTEIN_TARGET) * 100}
+                            value={PROTEIN_TARGET ? (totalMacros.protein / PROTEIN_TARGET) * 100 : 0}
                             color='#30bc29'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    (totalMacros.protein / PROTEIN_TARGET) *
-                                        100,
+                                    PROTEIN_TARGET ? (totalMacros.protein / PROTEIN_TARGET) * 100 : 0,
                                 )}{' '}
                                 %
                             </span>
@@ -490,12 +489,12 @@ export default function IngredientList({
                     </div>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={(totalMacros.fat / FAT_TARGET) * 100}
+                            value={FAT_TARGET ? (totalMacros.fat / FAT_TARGET) * 100 : 0}
                             color='#e0423c'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    (totalMacros.fat / FAT_TARGET) * 100,
+                                    FAT_TARGET ? (totalMacros.fat / FAT_TARGET) * 100 : 0,
                                 )}{' '}
                                 %
                             </span>
