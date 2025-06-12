@@ -115,9 +115,7 @@ export default function IngredientList({
 
         return data.ingredients.reduce(
             (acc, ingredient) => {
-                const currentAmount =
-                    currentValues[ingredient.ingredient.id] ||
-                    ingredient.amount;
+                const currentAmount = currentValues[ingredient.ingredient.id] ?? ingredient.amount;
                 const factor = currentAmount / 100;
                 acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
                 acc.protein +=
@@ -266,6 +264,9 @@ export default function IngredientList({
             })),
         };
 
+        // Log the recipe data being sent
+        console.log('Recipe data being sent:', JSON.stringify(modifiedRecipe, null, 2));
+
         const changedIngredient = {
             ...originalIngredient,
             amount: changedValues[ingredientId],
@@ -364,9 +365,7 @@ export default function IngredientList({
                                             type='text'
                                             id={ingredient.ingredient.id}
                                             value={
-                                                gramOrEgg(inputValues[
-                                                    ingredient.ingredient.id
-                                                ], isEgg) || ''
+                                                gramOrEgg(inputValues[ingredient.ingredient.id], isEgg) ?? ''
                                             }
                                             readOnly={isLocked}
                                             onClick={() => {
