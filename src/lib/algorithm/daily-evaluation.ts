@@ -10,6 +10,7 @@ import {
     MealType,
     DailyGoal,
     ParentAdjustment,
+    MacrosWithCalories,
 } from '@/lib/types';
 
 export default function adjustRecipeIteratively(
@@ -228,7 +229,7 @@ function findBestMacroAdjustmentWithAdaptiveDamping(
 }
 
 // Helper function remains the same
-function isWithinCalorieBounds(projectedDaily: any, goal: DailyGoal): boolean {
+function isWithinCalorieBounds(projectedDaily: MacrosWithCalories, goal: DailyGoal): boolean {
     const calorieMargin =
         (goal.calories * goal.macros.plusMinusPercentage.calories) / 100;
     return (

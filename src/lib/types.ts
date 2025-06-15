@@ -29,6 +29,8 @@ interface DailyGoal {
     macros: MacroGoal; // Makroziele pro Tag
 }
 
+type MacrosWithCalories = Macros & { calories: number };
+
 // Zutatendefinition
 interface Ingredient {
     id: string; // ID / Primary-Key
@@ -119,6 +121,7 @@ export {
 
 export type {
     Macros,
+    MacrosWithCalories,
     DailyGoal,
     Ingredient,
     RecipeIngredient,
