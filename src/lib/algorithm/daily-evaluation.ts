@@ -1,11 +1,7 @@
 import {
     calculateCaloriesFromMacros,
-    applyIngredientAdjustment,
-    calculateIngredientMacros,
     calculateRecipeMacros,
     isWithinGoal,
-    findLargestDeficitMacro,
-    findBestIngredientForMacro,
 } from './calculate';
 import {
     Recipe,
@@ -227,7 +223,7 @@ function findBestMacroAdjustmentWithAdaptiveDamping(
         ingredientId: best.ingredient.id,
         originalAmount,
         newAmount,
-        reason: 'Anti-Oscillation Macro Target',
+        reason: 'Automatische Feinjustierung zur optimalen Makroverteilung',
     };
 }
 
@@ -239,212 +235,6 @@ function isWithinCalorieBounds(projectedDaily: any, goal: DailyGoal): boolean {
         projectedDaily.calories >= goal.calories - calorieMargin &&
         projectedDaily.calories <= goal.calories + calorieMargin
     );
-}
-
-// FIXED: Convergence check with calorie bounds validation
-function isConvergedWithCalorieBounds(
-    projectedDaily: any,
-    goal: DailyGoal,
-    currentMacros: Macros,
-    targetContribution: Macros,
-    useCalorieFirst: boolean,
-): boolean {
-    // Always check calorie bounds first
-    if (!isWithinCalorieBounds(projectedDaily, goal)) {
-        return false;
-    }
-
-    if (useCalorieFirst) {
-        // Last meal calorie-first: Check if daily goals are met within bounds
-        const macrosWithinGoal = {
-            protein: isWithinGoal('protein', projectedDaily.protein, goal),
-            carbs: isWithinGoal('carbs', projectedDaily.carbs, goal),
-            fat: isWithinGoal('fat', projectedDaily.fat, goal),
-        };
-
-        return Object.values(macrosWithinGoal).filter(Boolean).length >= 2;
-    } else {
-        // Non-final meal or aligned targets: Check recipe targets
-        const proteinDiff = Math.abs(
-            currentMacros.protein - targetContribution.protein,
-        );
-        const carbsDiff = Math.abs(
-            currentMacros.carbs - targetContribution.carbs,
-        );
-        const fatDiff = Math.abs(currentMacros.fat - targetContribution.fat);
-
-        const tolerance = 4.0; // Slightly relaxed tolerance for better convergence
-        return (
-            proteinDiff <= tolerance &&
-            carbsDiff <= tolerance &&
-            fatDiff <= tolerance
-        );
-    }
-}
-
-// NEW: Precision calorie adjustment that targets exact amounts
-function findBestPrecisionCalorieAdjustment(
-    recipe: Recipe,
-    overallDeficit: number,
-    targetCalories: number,
-): ParentAdjustment | null {
-    const currentCalories = calculateCaloriesFromMacros(
-        calculateRecipeMacros(recipe),
-    );
-    const actualDeficit = targetCalories - currentCalories;
-
-    console.log(
-        `Precision targeting: ${actualDeficit.toFixed(1)} kcal (not ${overallDeficit.toFixed(1)} kcal)`,
-    );
-
-    // If very close to target, make minimal adjustment
-    if (Math.abs(actualDeficit) < 20) {
-        return null; // Close enough
-    }
-
-    const scored = recipe.ingredients
-        .filter((ri) => ri.ingredient.isFlexible)
-        .map((ri) => {
-            const macros = ri.ingredient.macrosPer100g;
-            const caloriesPer100g = calculateCaloriesFromMacros(macros);
-            const efficiency = caloriesPer100g / 100; // kcal per gram
-            const originalAmount = ri.originalAmount!;
-
-            // Calculate how much we can adjust
-            const maxAmount = originalAmount * 2.5;
-            const minAmount = originalAmount * 0.1;
-            const adjustmentRoom =
-                actualDeficit > 0
-                    ? maxAmount - ri.amount // Room to increase
-                    : ri.amount - minAmount; // Room to decrease
-
-            if (adjustmentRoom <= 0) return null;
-
-            // Prioritize ingredients that can contribute the right amount without overshooting
-            const maxContribution = adjustmentRoom * efficiency;
-            const canProvidePerfectAmount =
-                maxContribution >= Math.abs(actualDeficit) * 0.3;
-
-            return {
-                ingredient: ri,
-                score: efficiency * (canProvidePerfectAmount ? 1.5 : 1.0),
-                efficiency,
-                adjustmentRoom,
-            };
-        })
-        .filter((item) => item !== null)
-        .sort((a, b) => b.score - a.score);
-
-    if (scored.length === 0) return null;
-
-    const best = scored[0].ingredient;
-    const originalAmount = best.originalAmount!;
-
-    // Calculate precise adjustment to hit target (not overshoot)
-    const targetCalorieChange = actualDeficit * 0.7; // Conservative 70% of deficit
-    const caloriePerGram = scored[0].efficiency;
-    const targetAmountChange = targetCalorieChange / caloriePerGram;
-
-    const minAmount = originalAmount * 0.1;
-    const maxAmount = originalAmount * 2.5;
-    const newAmount = Math.max(
-        minAmount,
-        Math.min(maxAmount, best.amount + targetAmountChange),
-    );
-
-    if (Math.abs(newAmount - best.amount) < 1) return null;
-
-    return {
-        ingredientId: best.ingredient.id,
-        originalAmount,
-        newAmount,
-        reason: 'Precision Calorie Target',
-    };
-}
-
-// Keep the existing macro target adjustment function unchanged
-function findBestMacroTargetAdjustment(
-    recipe: Recipe,
-    targetContribution: Macros,
-    currentMacros: Macros,
-): ParentAdjustment | null {
-    const deficits = {
-        protein: targetContribution.protein - currentMacros.protein,
-        carbs: targetContribution.carbs - currentMacros.carbs,
-        fat: targetContribution.fat - currentMacros.fat,
-    };
-
-    console.log('Recipe macro deficits:', deficits);
-
-    // Find most critical deficit
-    const criticalMacro = (['protein', 'carbs', 'fat'] as const)
-        .map((macro) => ({
-            macro,
-            deficit: deficits[macro],
-            abs: Math.abs(deficits[macro]),
-        }))
-        .filter((item) => item.abs > 2.0)
-        .sort((a, b) => b.abs - a.abs)[0];
-
-    if (!criticalMacro) return null;
-
-    console.log(
-        `Targeting: ${criticalMacro.macro} (deficit: ${criticalMacro.deficit.toFixed(1)}g)`,
-    );
-
-    // Find best ingredient for this macro
-    const scored = recipe.ingredients
-        .filter((ri) => ri.ingredient.isFlexible)
-        .map((ri) => {
-            const macroContent =
-                ri.ingredient.macrosPer100g[criticalMacro.macro];
-            const originalAmount = ri.originalAmount!;
-
-            const canIncrease =
-                criticalMacro.deficit > 0 &&
-                macroContent > 0 &&
-                ri.amount < originalAmount * 2.5;
-            const canDecrease =
-                criticalMacro.deficit < 0 &&
-                macroContent > 0 &&
-                ri.amount > originalAmount * 0.1;
-
-            if (!canIncrease && !canDecrease) return null;
-
-            return {
-                ingredient: ri,
-                score: Math.abs(macroContent),
-                macroContent,
-            };
-        })
-        .filter((item) => item !== null)
-        .sort((a, b) => b.score - a.score);
-
-    if (scored.length === 0) return null;
-
-    const best = scored[0].ingredient;
-    const originalAmount = best.originalAmount!;
-    const macroContent = scored[0].macroContent;
-
-    // Calculate conservative adjustment
-    const targetAmountChange = (criticalMacro.deficit / macroContent) * 100;
-    const dampedChange = targetAmountChange * 0.6;
-
-    const minAmount = originalAmount * 0.1;
-    const maxAmount = originalAmount * 2.5;
-    const newAmount = Math.max(
-        minAmount,
-        Math.min(maxAmount, best.amount + dampedChange),
-    );
-
-    if (Math.abs(newAmount - best.amount) < 1) return null;
-
-    return {
-        ingredientId: best.ingredient.id,
-        originalAmount,
-        newAmount,
-        reason: 'Macro Target',
-    };
 }
 
 // Helper functions remain the same...
@@ -462,21 +252,12 @@ function calculateCalorieDeficit(recipe: Recipe, dailyPlan: DailyPlan): number {
 }
 
 function calculateProjectedDaily(recipe: Recipe, dailyPlan: DailyPlan) {
-    // Exclude the current recipe (matched by id) from the sum
-    const existingMacros = dailyPlan.meals.reduce(
-        (sum, meal) => {
-            if (meal.recipe.id === recipe.id) {
-                return sum; // skip the recipe being adjusted
-            }
-            const mealMacros = calculateRecipeMacros(meal.recipe);
-            return {
-                protein: sum.protein + mealMacros.protein,
-                carbs: sum.carbs + mealMacros.carbs,
-                fat: sum.fat + mealMacros.fat,
-            };
-        },
-        { protein: 0, carbs: 0, fat: 0 },
-    );
+    // Use the already-calculated daily totals instead of recalculating
+    const existingMacros = dailyPlan.totalMacros || {
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+    };
 
     const recipeContribution = calculateRecipeMacros(recipe);
 
@@ -489,35 +270,6 @@ function calculateProjectedDaily(recipe: Recipe, dailyPlan: DailyPlan) {
     return {
         ...totalMacros,
         calories: calculateCaloriesFromMacros(totalMacros),
-    };
-}
-
-function analyzeCurrentState(
-    recipe: Recipe,
-    dailyPlan: DailyPlan,
-    targetContribution: Macros,
-) {
-    const currentMacros = calculateRecipeMacros(recipe);
-    const projectedDaily = calculateProjectedDaily(recipe, dailyPlan);
-
-    const proteinDiff = Math.abs(
-        currentMacros.protein - targetContribution.protein,
-    );
-    const carbsDiff = Math.abs(currentMacros.carbs - targetContribution.carbs);
-    const fatDiff = Math.abs(currentMacros.fat - targetContribution.fat);
-
-    const totalTargetError =
-        (proteinDiff + carbsDiff + fatDiff) /
-        (targetContribution.protein +
-            targetContribution.carbs +
-            targetContribution.fat);
-    const improvement = Math.max(0, 1 - totalTargetError);
-
-    return {
-        currentMacros,
-        projectedDaily,
-        targetError: totalTargetError,
-        improvement,
     };
 }
 
