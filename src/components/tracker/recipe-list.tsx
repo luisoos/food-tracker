@@ -2,6 +2,7 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { Recipe } from '@/lib/types';
 import MacroRing from './macro-ring';
 import { gramOrEgg } from '@/lib/utils';
+import { useDailyPlanStore } from '@/stores/daily-tracker';
 
 export default function RecipeList({
     onSelect,
@@ -9,6 +10,7 @@ export default function RecipeList({
     onSelect?: (data: string) => void;
 }) {
     const { data, isLoading, error } = useRecipes();
+    const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -30,12 +32,30 @@ export default function RecipeList({
         );
     };
 
+    const getCurrentProgress = (macro: 'protein' | 'carbs' | 'fat') => {
+        if (!dailyPlan?.totalMacros) return 0;
+        const target = {
+            protein: 120,
+            carbs: 264,
+            fat: 85,
+        }[macro];
+        return (dailyPlan.totalMacros[macro] / target) * 100;
+    };
+
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-2'>
             {Object.values(data as Record<string, Recipe>).map((recipe) => {
                 const macros = calculateMacros(recipe);
                 const totalCalories =
                     macros.protein * 4 + macros.carbs * 4 + macros.fat * 9;
+
+                const currentCarbs = getCurrentProgress('carbs');
+                const currentProtein = getCurrentProgress('protein');
+                const currentFat = getCurrentProgress('fat');
+
+                const additionalCarbs = (macros.carbs / 264) * 100;
+                const additionalProtein = (macros.protein / 120) * 100;
+                const additionalFat = (macros.fat / 85) * 100;
 
                 return (
                     <div
@@ -79,14 +99,17 @@ export default function RecipeList({
                             <div className='flex items-center gap-4 justify-center py-2'>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(macros.carbs / 264) * 100}
+                                        value={currentCarbs}
+                                        additionalValue={additionalCarbs}
                                         color='#e0d83c'
-                                        size={48}>
+                                        size={48}
+                                        macroType='carbs'
+                                        currentAmount={
+                                            dailyPlan?.totalMacros?.carbs || 0
+                                        }
+                                        targetAmount={264}>
                                         <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (macros.carbs / 264) * 100,
-                                            )}{' '}
-                                            %
+                                            {Math.round(macros.carbs)}g
                                         </span>
                                     </MacroRing>
                                     <span className='text-xs mt-1 text-zinc-500'>
@@ -95,14 +118,17 @@ export default function RecipeList({
                                 </div>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(macros.protein / 120) * 100}
+                                        value={currentProtein}
+                                        additionalValue={additionalProtein}
                                         color='#30bc29'
-                                        size={48}>
+                                        size={48}
+                                        macroType='protein'
+                                        currentAmount={
+                                            dailyPlan?.totalMacros?.protein || 0
+                                        }
+                                        targetAmount={120}>
                                         <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (macros.protein / 120) * 100,
-                                            )}{' '}
-                                            %
+                                            {Math.round(macros.protein)}g
                                         </span>
                                     </MacroRing>
                                     <span className='text-xs mt-1 text-zinc-500'>
@@ -111,14 +137,17 @@ export default function RecipeList({
                                 </div>
                                 <div className='flex flex-col items-center'>
                                     <MacroRing
-                                        value={(macros.fat / 85) * 100}
+                                        value={currentFat}
+                                        additionalValue={additionalFat}
                                         color='#e0423c'
-                                        size={48}>
+                                        size={48}
+                                        macroType='fat'
+                                        currentAmount={
+                                            dailyPlan?.totalMacros?.fat || 0
+                                        }
+                                        targetAmount={85}>
                                         <span className='text-xs font-semibold'>
-                                            {Math.round(
-                                                (macros.fat / 85) * 100,
-                                            )}{' '}
-                                            %
+                                            {Math.round(macros.fat)}g
                                         </span>
                                     </MacroRing>
                                     <span className='text-xs mt-1 text-zinc-500'>

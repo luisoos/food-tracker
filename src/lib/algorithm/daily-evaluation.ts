@@ -229,7 +229,10 @@ function findBestMacroAdjustmentWithAdaptiveDamping(
 }
 
 // Helper function remains the same
-function isWithinCalorieBounds(projectedDaily: MacrosWithCalories, goal: DailyGoal): boolean {
+function isWithinCalorieBounds(
+    projectedDaily: MacrosWithCalories,
+    goal: DailyGoal,
+): boolean {
     const calorieMargin =
         (goal.calories * goal.macros.plusMinusPercentage.calories) / 100;
     return (
