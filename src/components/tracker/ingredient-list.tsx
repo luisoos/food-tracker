@@ -365,7 +365,10 @@ export default function IngredientList({
                                             type='text'
                                             id={ingredient.ingredient.id}
                                             value={
-                                                gramOrEgg(inputValues[ingredient.ingredient.id], isEgg) ?? ''
+                                                (() => {
+                                                    const result = gramOrEgg(inputValues[ingredient.ingredient.id], isEgg);
+                                                    return isNaN(result) ? '' : result.toString();
+                                                })()
                                             }
                                             readOnly={isLocked}
                                             onClick={() => {
