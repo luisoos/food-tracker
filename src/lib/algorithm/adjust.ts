@@ -16,6 +16,7 @@ import {
     getMaxCompensation,
 } from './calculate';
 import { findBestIngredientsToAdjust } from './evaluate';
+import adjustRecipeIteratively from './daily-evaluation';
 
 export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     const { recipe, changedIngredient, dailyPlan, currentMealType } = input;
@@ -93,78 +94,59 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     }
     // Fall 2: Automatischer Ausgleich von Tagesdefiziten
     else {
-        // Berechne fehlende/überschüssige Makros
         const remaining = dailyPlan.remainingMacros || calculateRemainingMacros(dailyPlan);
 
-        // Dynamischer Kompensationsfaktor basierend auf verbleibenden Mahlzeiten
-        const compensationFactor =
-            remainingMeals > 0 ? -(1 / (remainingMeals + 1)) : -1; // Letzte Mahlzeit muss vollständig kompensieren
-
-        const adjustedDeficit = {
-            protein: remaining.protein * compensationFactor,
-            carbs: remaining.carbs * compensationFactor,
-            fat: remaining.fat * compensationFactor,
+        const contributionFactor = remainingMeals > 0 ? (1 / (remainingMeals + 1)) : 1;
+        
+        const targetContribution = {
+            protein: remaining.protein * contributionFactor,
+            carbs: remaining.carbs * contributionFactor,
+            fat: remaining.fat * contributionFactor,
         };
 
-        /**
-         * Checks if the current macro deficit can still be compensated in the remaining meals.
-         * @param macro The macronutrient key (e.g., protein, carbs, fat)
-         * @param value The current deficit value for this macro
-         * @returns {boolean} True if the deficit can be compensated later, false if adjustment is needed now
-         */
-        const canCompensateLater = (macro: keyof Macros, value: number) => {
-            const maxFutureCompensation =
-                remainingMeals * getMaxCompensation(macro);
-            return Math.abs(value) <= maxFutureCompensation;
-        };
-
-        const needsAdjustment = Object.entries(adjustedDeficit).some(
-            ([macro, value]) =>
-                !canCompensateLater(macro as keyof Macros, value),
+        const needsAdjustment = Object.entries(targetContribution).some(
+            ([macro, value]) => Math.abs(value) > 1.0
         );
 
-        if (!needsAdjustment)
+        if (!needsAdjustment) {
             return {
-                adjustedRecipe: recipe,
+                adjustedRecipe: adjustedRecipe, // Fixed: use adjustedRecipe
                 adjustments: {
                     success: false,
                     error: 'Du benötigst keine Anpassung für diese Mahlzeit.',
                 },
             };
+        }
 
-        // Anpassungslogik mit dynamischem Defizit
-        const bestOptions = findBestIngredientsToAdjust(
-            recipe,
-            adjustedDeficit,
+        // Run iterative adjustment
+        const iterativeResult = adjustRecipeIteratively(
+            adjustedRecipe,
+            targetContribution,
+            dailyPlan
         );
 
-        // Übernehme Top 3 Anpassungen
-        if (bestOptions.success) {
-            bestOptions.data.slice(0, 3).forEach((option) => {
-                const target = recipe.ingredients.find(
-                    (ri) => ri.ingredient.id === option.ingredientId,
+        if (iterativeResult.success) {
+            adjustments.push(...iterativeResult.adjustments);
+            
+            // CRITICAL FIX: Apply the adjustments to ensure recipe consistency
+            iterativeResult.adjustments.forEach(adjustment => {
+                const ingredient = adjustedRecipe.ingredients.find(
+                    ri => ri.ingredient.id === adjustment.ingredientId
                 );
-
-                if (!target) return;
-
-                const newAmount = Math.max(0, target.amount + option.amount);
-
-                target.originalAmount = target.amount;
-                target.amount = newAmount;
-
-                adjustments.push({
-                    ingredientId: option.ingredientId,
-                    originalAmount: target.originalAmount,
-                    newAmount,
-                    reason: `${option.macro}-Ausgleich vom Tag`,
-                });
+                if (ingredient) {
+                    // Ensure the recipe reflects the final adjusted amounts
+                    ingredient.amount = adjustment.newAmount;
+                    if (!ingredient.originalAmount) {
+                        ingredient.originalAmount = adjustment.originalAmount;
+                    }
+                }
             });
         } else {
-            adjustmentFeedback = bestOptions.error;
+            adjustmentFeedback = 'Konnte Makroziele nicht perfekt erreichen';
         }
     }
 
-    // Aktualisiere Gesamtwerte des Rezepts
+    // Aktualisiere Gesamtwerte des Rezepts (this now reflects actual changes)
     adjustedRecipe.totalMacros = calculateRecipeMacros(adjustedRecipe);
     adjustedRecipe.totalCalories = calculateCaloriesFromMacros(
         adjustedRecipe.totalMacros,
