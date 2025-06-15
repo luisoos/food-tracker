@@ -42,14 +42,14 @@ const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID || Date.now().toString();
 
 function getInitialDailyPlan() {
     if (typeof window === 'undefined') return null;
-    
-    const storedId = localStorage.getItem("buildId");
+
+    const storedId = localStorage.getItem('buildId');
     if (storedId !== BUILD_ID) {
         localStorage.clear();
-        localStorage.setItem("buildId", BUILD_ID);
+        localStorage.setItem('buildId', BUILD_ID);
         return null; // or createDefaultDailyPlan();
     }
-    const storedDailyPlan = localStorage.getItem("dailyPlan");
+    const storedDailyPlan = localStorage.getItem('dailyPlan');
     return storedDailyPlan ? JSON.parse(storedDailyPlan) : null;
 }
 

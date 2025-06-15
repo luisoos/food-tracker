@@ -9,6 +9,8 @@ import {
     Recipe,
     DailyPlan,
     DailyGoal,
+    ParentAdjustment,
+    RecipeIngredient,
 } from '../types';
 
 // Berechnet Makros für eine bestimmte Menge einer Zutat
@@ -96,8 +98,7 @@ export function isWithinGoal(
     const tolerance = target * (goal.macros.plusMinusPercentage[macro] / 100);
 
     return (
-        currentValue >= target - tolerance && 
-        currentValue <= target + tolerance
+        currentValue >= target - tolerance && currentValue <= target + tolerance
     );
 }
 
@@ -112,79 +113,81 @@ export function getMaxCompensation(macro: keyof Macros): number {
 }
 
 export function findLargestDeficitMacro(
-    deficit: Macros, 
-    goal: DailyGoal
+    deficit: Macros,
+    goal: DailyGoal,
 ): { macro: keyof Macros; deficit: number } | null {
     const macroDeficits = (['protein', 'carbs', 'fat'] as const)
-        .map(macro => ({
+        .map((macro) => ({
             macro,
             deficit: deficit[macro],
-            relativeDeficit: Math.abs(deficit[macro]) / goal.macros[macro]
+            relativeDeficit: Math.abs(deficit[macro]) / goal.macros[macro],
         }))
-        .filter(item => Math.abs(item.deficit) > 0.1) // Ignore tiny deficits
+        .filter((item) => Math.abs(item.deficit) > 0.1) // Ignore tiny deficits
         .sort((a, b) => b.relativeDeficit - a.relativeDeficit);
-    
+
     return macroDeficits.length > 0 ? macroDeficits[0] : null;
 }
 
 export function findBestIngredientForMacro(
-    recipe: Recipe, 
-    macro: keyof Macros, 
-    targetDeficit: number
+    recipe: Recipe,
+    macro: keyof Macros,
+    targetDeficit: number,
 ): RecipeIngredient | null {
     const flexibleIngredients = recipe.ingredients.filter(
-        ingredient => ingredient.ingredient.isFlexible
+        (ingredient) => ingredient.ingredient.isFlexible,
     );
-    
+
     if (flexibleIngredients.length === 0) return null;
-    
+
     // Score ingredients by their efficiency for this macro
-    const scoredIngredients = flexibleIngredients.map(ingredient => {
-        const macroContentPer100g = ingredient.ingredient.macrosPer100g[macro];
-        const efficiency = Math.abs(macroContentPer100g);
-        const currentAmount = ingredient.amount;
-        
-        // Prefer ingredients that can be adjusted without going to zero
-        const adjustability = currentAmount > 10 ? 1 : 0.5;
-        
-        return {
-            ingredient,
-            score: efficiency * adjustability,
-            macroContent: macroContentPer100g
-        };
-    }).sort((a, b) => b.score - a.score);
-    
+    const scoredIngredients = flexibleIngredients
+        .map((ingredient) => {
+            const macroContentPer100g =
+                ingredient.ingredient.macrosPer100g[macro];
+            const efficiency = Math.abs(macroContentPer100g);
+            const currentAmount = ingredient.amount;
+
+            // Prefer ingredients that can be adjusted without going to zero
+            const adjustability = currentAmount > 10 ? 1 : 0.5;
+
+            return {
+                ingredient,
+                score: efficiency * adjustability,
+                macroContent: macroContentPer100g,
+            };
+        })
+        .sort((a, b) => b.score - a.score);
+
     return scoredIngredients[0]?.ingredient || null;
 }
 
 export function applyIngredientAdjustment(
-    recipe: Recipe, 
-    recipeIngredient: RecipeIngredient, 
-    targetDeficit: number
+    recipe: Recipe,
+    recipeIngredient: RecipeIngredient,
+    targetDeficit: number,
 ): ParentAdjustment | null {
     const ingredient = recipeIngredient.ingredient;
     const originalAmount = recipeIngredient.amount;
-    
+
     // Calculate needed amount change
     const macroContentPer100g = ingredient.macrosPer100g;
-    const totalMacroContent = (
-        macroContentPer100g.protein + 
-        macroContentPer100g.carbs + 
-        macroContentPer100g.fat
-    );
-    
+    const totalMacroContent =
+        macroContentPer100g.protein +
+        macroContentPer100g.carbs +
+        macroContentPer100g.fat;
+
     if (totalMacroContent === 0) return null;
-    
+
     // Estimate amount change needed (simplified approach)
     const estimatedAmountChange = (targetDeficit / totalMacroContent) * 100;
     const newAmount = Math.max(0, originalAmount + estimatedAmountChange);
-    
+
     // Apply the change
     recipeIngredient.amount = newAmount;
     if (!recipeIngredient.originalAmount) {
         recipeIngredient.originalAmount = originalAmount;
     }
-    
+
     return {
         ingredientId: ingredient.id,
         originalAmount,

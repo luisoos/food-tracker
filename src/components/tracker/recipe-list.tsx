@@ -51,7 +51,14 @@ export default function RecipeList({
                                 {recipe.ingredients.map(
                                     ({ ingredient, amount }, index, array) => (
                                         <span key={ingredient.id}>
-                                            {ingredient.name} ({ingredient.id === 'egg' ? gramOrEgg(amount.toString(), true) + ' Stk.' : amount + 'g'})
+                                            {ingredient.name} (
+                                            {ingredient.id === 'egg'
+                                                ? gramOrEgg(
+                                                      amount.toString(),
+                                                      true,
+                                                  ) + ' Stk.'
+                                                : amount + 'g'}
+                                            )
                                             {index < array.length - 1
                                                 ? ', '
                                                 : ''}

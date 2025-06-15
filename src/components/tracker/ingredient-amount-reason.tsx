@@ -26,8 +26,7 @@ export default function IngredientAmountReason({ reason }: { reason: string }) {
                 onClick={(e) => {
                     e.preventDefault();
                     setIsOpen(!isOpen);
-                }}
-            >
+                }}>
                 <motion.div
                     animate={
                         animate
@@ -41,16 +40,15 @@ export default function IngredientAmountReason({ reason }: { reason: string }) {
                         duration: 0.6,
                         ease: 'easeInOut',
                         times: [0, 0.5, 1],
-                    }}
-                >
+                    }}>
                     <BadgeInfo
                         size={16}
-                        className="ml-1 mt-0.5 text-zinc-500"
+                        className='ml-1 mt-0.5 text-zinc-500'
                     />
                 </motion.div>
             </HoverCardTrigger>
-            <HoverCardContent align="start" className="flex">
-                <BrainCircuit size={16} className="mr-1 mt-0.5" />
+            <HoverCardContent align='start' className='flex'>
+                <BrainCircuit size={16} className='mr-1 mt-0.5' />
                 {ucfirst(reason)}
             </HoverCardContent>
         </HoverCard>

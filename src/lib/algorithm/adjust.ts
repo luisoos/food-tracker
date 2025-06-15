@@ -94,10 +94,12 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
     }
     // Fall 2: Automatischer Ausgleich von Tagesdefiziten
     else {
-        const remaining = dailyPlan.remainingMacros || calculateRemainingMacros(dailyPlan);
+        const remaining =
+            dailyPlan.remainingMacros || calculateRemainingMacros(dailyPlan);
 
-        const contributionFactor = remainingMeals > 0 ? (1 / (remainingMeals + 1)) : 1;
-        
+        const contributionFactor =
+            remainingMeals > 0 ? 1 / (remainingMeals + 1) : 1;
+
         const targetContribution = {
             protein: remaining.protein * contributionFactor,
             carbs: remaining.carbs * contributionFactor,
@@ -105,7 +107,7 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         };
 
         const needsAdjustment = Object.entries(targetContribution).some(
-            ([macro, value]) => Math.abs(value) > 1.0
+            ([macro, value]) => Math.abs(value) > 1.0,
         );
 
         if (!needsAdjustment) {
@@ -122,16 +124,16 @@ export default function adjustRecipe(input: AdjustmentInput): AdjustmentOutput {
         const iterativeResult = adjustRecipeIteratively(
             adjustedRecipe,
             targetContribution,
-            dailyPlan
+            dailyPlan,
         );
 
         if (iterativeResult.success) {
             adjustments.push(...iterativeResult.adjustments);
-            
+
             // CRITICAL FIX: Apply the adjustments to ensure recipe consistency
-            iterativeResult.adjustments.forEach(adjustment => {
+            iterativeResult.adjustments.forEach((adjustment) => {
                 const ingredient = adjustedRecipe.ingredients.find(
-                    ri => ri.ingredient.id === adjustment.ingredientId
+                    (ri) => ri.ingredient.id === adjustment.ingredientId,
                 );
                 if (ingredient) {
                     // Ensure the recipe reflects the final adjusted amounts

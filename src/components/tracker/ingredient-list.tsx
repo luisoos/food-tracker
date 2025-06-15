@@ -115,7 +115,9 @@ export default function IngredientList({
 
         return data.ingredients.reduce(
             (acc, ingredient) => {
-                const currentAmount = currentValues[ingredient.ingredient.id] ?? ingredient.amount;
+                const currentAmount =
+                    currentValues[ingredient.ingredient.id] ??
+                    ingredient.amount;
                 const factor = currentAmount / 100;
                 acc.carbs += ingredient.ingredient.macrosPer100g.carbs * factor;
                 acc.protein +=
@@ -265,7 +267,10 @@ export default function IngredientList({
         };
 
         // Log the recipe data being sent
-        console.log('Recipe data being sent:', JSON.stringify(modifiedRecipe, null, 2));
+        console.log(
+            'Recipe data being sent:',
+            JSON.stringify(modifiedRecipe, null, 2),
+        );
 
         const changedIngredient = {
             ...originalIngredient,
@@ -312,7 +317,7 @@ export default function IngredientList({
                 }
             } else if (result && !result.adjustments.success) {
                 // Notify user, why nothing was changed
-                toast(result.adjustments.error)
+                toast(result.adjustments.error);
             }
         } catch (error) {
             console.error('Failed to adjust recipe:', error);
@@ -364,12 +369,17 @@ export default function IngredientList({
                                             )}
                                             type='text'
                                             id={ingredient.ingredient.id}
-                                            value={
-                                                (() => {
-                                                    const result = gramOrEgg(inputValues[ingredient.ingredient.id], isEgg);
-                                                    return isNaN(result) ? '' : result.toString();
-                                                })()
-                                            }
+                                            value={(() => {
+                                                const result = gramOrEgg(
+                                                    inputValues[
+                                                        ingredient.ingredient.id
+                                                    ],
+                                                    isEgg,
+                                                );
+                                                return isNaN(result)
+                                                    ? ''
+                                                    : result.toString();
+                                            })()}
                                             readOnly={isLocked}
                                             onClick={() => {
                                                 if (isLocked)
@@ -379,8 +389,9 @@ export default function IngredientList({
                                                 if (!isLocked) {
                                                     handleInputChange(
                                                         eggToGram(
-                                                            e.target.value
-                                                        , isEgg).toString(), 
+                                                            e.target.value,
+                                                            isEgg,
+                                                        ).toString(),
                                                         ingredient.ingredient
                                                             .id,
                                                     );
@@ -395,9 +406,11 @@ export default function IngredientList({
                                                 }
                                             }}
                                         />
-                                        {!isEgg && <span className='h-8 ml-1 flex items-center leading-8'>
-                                            g
-                                        </span>}
+                                        {!isEgg && (
+                                            <span className='h-8 ml-1 flex items-center leading-8'>
+                                                g
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell
                                         className={`w-8 ${
@@ -411,14 +424,20 @@ export default function IngredientList({
                                                 ? 'text-red-700 line-through'
                                                 : 'text-zinc-400'
                                         }`}>
-                                        {toGermanNumber(gramOrEgg(
-                                                            ingredient.amount.toString(), isEgg))}
+                                        {toGermanNumber(
+                                            gramOrEgg(
+                                                ingredient.amount.toString(),
+                                                isEgg,
+                                            ),
+                                        )}
                                         {!isEgg && 'g'}
                                     </TableCell>
 
                                     <TableCell className='font-medium w-full'>
                                         <div className='flex'>
-                                            {isEgg ? 'Eier (Größe M / 60 g)' : ingredient.ingredient.name}
+                                            {isEgg
+                                                ? 'Eier (Größe M / 60 g)'
+                                                : ingredient.ingredient.name}
                                             {reasons[
                                                 ingredient.ingredient.id
                                             ] && (
@@ -462,12 +481,19 @@ export default function IngredientList({
                 <div className='md:hidden flex items-center gap-4 justify-center py-2'>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={CARBS_TARGET ? (totalMacros.carbs / CARBS_TARGET) * 100 : 0}
+                            value={
+                                CARBS_TARGET
+                                    ? (totalMacros.carbs / CARBS_TARGET) * 100
+                                    : 0
+                            }
                             color='#e0d83c'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    CARBS_TARGET ? (totalMacros.carbs / CARBS_TARGET) * 100 : 0,
+                                    CARBS_TARGET
+                                        ? (totalMacros.carbs / CARBS_TARGET) *
+                                              100
+                                        : 0,
                                 )}{' '}
                                 %
                             </span>
@@ -476,12 +502,21 @@ export default function IngredientList({
                     </div>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={PROTEIN_TARGET ? (totalMacros.protein / PROTEIN_TARGET) * 100 : 0}
+                            value={
+                                PROTEIN_TARGET
+                                    ? (totalMacros.protein / PROTEIN_TARGET) *
+                                      100
+                                    : 0
+                            }
                             color='#30bc29'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    PROTEIN_TARGET ? (totalMacros.protein / PROTEIN_TARGET) * 100 : 0,
+                                    PROTEIN_TARGET
+                                        ? (totalMacros.protein /
+                                              PROTEIN_TARGET) *
+                                              100
+                                        : 0,
                                 )}{' '}
                                 %
                             </span>
@@ -492,12 +527,18 @@ export default function IngredientList({
                     </div>
                     <div className='flex flex-col items-center'>
                         <MacroRing
-                            value={FAT_TARGET ? (totalMacros.fat / FAT_TARGET) * 100 : 0}
+                            value={
+                                FAT_TARGET
+                                    ? (totalMacros.fat / FAT_TARGET) * 100
+                                    : 0
+                            }
                             color='#e0423c'
                             size={48}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
-                                    FAT_TARGET ? (totalMacros.fat / FAT_TARGET) * 100 : 0,
+                                    FAT_TARGET
+                                        ? (totalMacros.fat / FAT_TARGET) * 100
+                                        : 0,
                                 )}{' '}
                                 %
                             </span>

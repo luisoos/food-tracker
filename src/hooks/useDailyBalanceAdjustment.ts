@@ -103,11 +103,8 @@ export function useDailyBalanceAdjustment({
 
                 // Call the callback with the new values and reasons
                 onAdjustmentComplete?.(newValues, newReasons);
-            } else if (
-                result &&
-                !result.adjustments.success
-            ) {
-                toast(result.adjustments.error)
+            } else if (result && !result.adjustments.success) {
+                toast(result.adjustments.error);
             }
         } catch (error) {
             console.error('Failed to adjust recipe for daily balance:', error);
