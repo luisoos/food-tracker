@@ -36,6 +36,7 @@ interface MacroHoverCardProps {
     targetAmount: number;
     value: number;
     additionalValue?: number;
+    color: string;
 }
 
 function MacroHoverCard({
@@ -44,6 +45,7 @@ function MacroHoverCard({
     targetAmount,
     value,
     additionalValue = 0,
+    color,
 }: MacroHoverCardProps) {
     const info = MACRO_INFO[macroType];
 
@@ -73,7 +75,7 @@ function MacroHoverCard({
                 {additionalValue > 0 && (
                     <div className='flex items-center justify-between text-sm'>
                         <span className='text-zinc-600'>Dieses Rezept</span>
-                        <span className='font-medium'>
+                        <span className='font-medium' style={{ color }}>
                             +
                             {Math.round((additionalValue / 100) * targetAmount)}
                             {info.unit} (+{Math.round(additionalValue)}%)
@@ -163,7 +165,7 @@ export default function MacroRing({
                         )}
                     </svg>
                     <div
-                        className='absolute inset-0 flex items-center justify-center text-[calc(0.38*var(--size))] font-semibold'
+                        className='absolute inset-0 flex items-center justify-center text-[calc(0.38*var(--size))] font-semibold translate-x-0.5 translate-y-0.5'
                         style={
                             { '--size': `${size}px` } as React.CSSProperties
                         }>
@@ -173,7 +175,7 @@ export default function MacroRing({
             </HoverCardTrigger>
             <HoverCardContent
                 className={cn(
-                    'w-64 rounded-lg p-2 shadow-lg backdrop-blur-xs bg-white/20',
+                    'w-64 rounded-lg p-2 shadow-lg backdrop-blur-sm bg-white/20',
                 )}>
                 <MacroHoverCard
                     macroType={macroType}
@@ -181,6 +183,7 @@ export default function MacroRing({
                     targetAmount={targetAmount}
                     value={value}
                     additionalValue={additionalValue}
+                    color={color}
                 />
             </HoverCardContent>
         </HoverCard>

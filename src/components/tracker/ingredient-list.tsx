@@ -487,7 +487,10 @@ export default function IngredientList({
                                     : 0
                             }
                             color='#e0d83c'
-                            size={48}>
+                            size={48}
+                            macroType='carbs'
+                            currentAmount={totalMacros.carbs}
+                            targetAmount={CARBS_TARGET || 0}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
                                     CARBS_TARGET
@@ -509,7 +512,10 @@ export default function IngredientList({
                                     : 0
                             }
                             color='#30bc29'
-                            size={48}>
+                            size={48}
+                            macroType='protein'
+                            currentAmount={totalMacros.protein}
+                            targetAmount={PROTEIN_TARGET || 0}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
                                     PROTEIN_TARGET
@@ -533,7 +539,10 @@ export default function IngredientList({
                                     : 0
                             }
                             color='#e0423c'
-                            size={48}>
+                            size={48}
+                            macroType='fat'
+                            currentAmount={totalMacros.fat}
+                            targetAmount={FAT_TARGET || 0}>
                             <span className='text-xs font-semibold'>
                                 {Math.round(
                                     FAT_TARGET
