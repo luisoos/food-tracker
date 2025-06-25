@@ -17,23 +17,24 @@ import { ArrowLeft, Ban, Plus } from 'lucide-react';
 import { Macros, MealType, Recipe } from '@/lib/types';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useRecipe } from '@/hooks/useRecipeById';
-import { useScreenWidth } from '@/hooks/useScreenWidth';
 import { useRef } from 'react';
 
 interface RecipeSelectorProps {
     typeName: string;
     children: ReactNode;
     currentMealType: MealType;
+    isEditing?: boolean;
 }
 
 export default function RecipeSelector({
     typeName,
     children,
     currentMealType,
+    isEditing = false,
 }: RecipeSelectorProps) {
-    const screenWidth = useScreenWidth();
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
     const addMeal = useDailyPlanStore((state) => state.addMeal);
+    const editMeal = useDailyPlanStore((state) => state.editMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
     const [recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] =
@@ -52,10 +53,16 @@ export default function RecipeSelector({
     const handleAddMeal = () => {
         if (!currentRecipe || !dailyPlan) return;
 
-        addMeal({
+        const meal = {
             type: currentMealType,
             recipe: currentRecipe,
-        });
+        };
+
+        if (isEditing) {
+            editMeal(meal);
+        } else {
+            addMeal(meal);
+        }
 
         resetRecipeSelection();
     };
@@ -75,7 +82,6 @@ export default function RecipeSelector({
         [recipe],
     );
 
-    // In der Komponente:
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -153,12 +159,14 @@ export default function RecipeSelector({
                                 <Ban /> Abbrechen
                             </Button>
                         </DrawerClose>
-                        <Button
-                            variant='default'
-                            className='ml-2'
-                            onClick={handleAddMeal}>
-                            <Plus /> Hinzufügen
-                        </Button>
+                        <DrawerClose asChild>
+                            <Button
+                                variant='default'
+                                className='ml-2'
+                                onClick={handleAddMeal}>
+                                <Plus /> Hinzufügen
+                            </Button>
+                        </DrawerClose>
                     </DrawerFooter>
                 )}
             </DrawerContent>

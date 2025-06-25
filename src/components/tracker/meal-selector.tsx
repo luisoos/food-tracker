@@ -10,7 +10,7 @@ import {
 } from '../ui/card';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, Edit } from 'lucide-react';
 import RecipeSelector from './recipe-selector';
 import {
     HoverCard,
@@ -134,25 +134,47 @@ function MealDisplay({
                 {isLoading ? (
                     <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
                 ) : content ? (
-                    <div className='flex flex-col items-center gap-2'>
-                        <HoverCard>
-                            <HoverCardTrigger>
-                                <div
-                                    className='text-destructive hover:text-destructive/90 cursor-pointer'
-                                    onClick={() => onRemove(type)}>
-                                    <Trash2
-                                        className='absolute top-2 right-2'
-                                        size={16}
-                                    />
-                                </div>
-                            </HoverCardTrigger>
-                            <HoverCardContent
-                                align='start'
-                                className='-translate-y-6'>
-                                {typeName} löschen
-                            </HoverCardContent>
-                        </HoverCard>
-                        <p className='mx-2 text-center font-semibold'>
+                    <div className='flex flex-col items-center'>
+                        <div className='flex'>
+                            <HoverCard>
+                                <HoverCardTrigger>
+                                    <RecipeSelector
+                                        typeName={typeName}
+                                        currentMealType={type}
+                                        isEditing={true}>
+                                        <div className='text-zinc-600 hover:text-zinc-600/90 cursor-pointer'>
+                                            <Edit
+                                                className='absolute top-2 right-8'
+                                                size={16}
+                                            />
+                                        </div>
+                                    </RecipeSelector>
+                                </HoverCardTrigger>
+                                <HoverCardContent
+                                    align='start'
+                                    className='-translate-y-6'>
+                                    {typeName} bearbeiten
+                                </HoverCardContent>
+                            </HoverCard>
+                            <HoverCard>
+                                <HoverCardTrigger>
+                                    <div
+                                        className='text-destructive hover:text-destructive/90 cursor-pointer'
+                                        onClick={() => onRemove(type)}>
+                                        <Trash2
+                                            className='absolute top-2 right-2'
+                                            size={16}
+                                        />
+                                    </div>
+                                </HoverCardTrigger>
+                                <HoverCardContent
+                                    align='start'
+                                    className='-translate-y-6'>
+                                    {typeName} löschen
+                                </HoverCardContent>
+                            </HoverCard>
+                        </div>
+                        <p className='mx-2 text-center font-semibold -translate-y-2'>
                             {content.recipe.name}
                         </p>
                     </div>

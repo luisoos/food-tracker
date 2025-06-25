@@ -9,6 +9,7 @@ type Store = {
     loadDailyPlan: () => void;
     initializeDailyPlan: (date?: string) => void;
     addMeal: (meal: Meal) => void;
+    editMeal: (meal: Meal) => void;
     removeMeal: (mealType: MealType) => void;
     updateTotalMacros: () => void;
 };
@@ -82,6 +83,32 @@ export const useDailyPlanStore = create<Store>((set, get) => ({
         const updatedPlan = {
             ...currentPlan,
             meals: [...currentPlan.meals, meal],
+        };
+
+        // Update total macros
+        const totalMacros = calculateTotalMacros(updatedPlan.meals);
+        updatedPlan.totalMacros = totalMacros;
+
+        // Update remaining macros
+        updatedPlan.remainingMacros = {
+            protein: currentPlan.goal.macros.protein - totalMacros.protein,
+            carbs: currentPlan.goal.macros.carbs - totalMacros.carbs,
+            fat: currentPlan.goal.macros.fat - totalMacros.fat,
+        };
+
+        get().setDailyPlan(updatedPlan);
+    },
+    editMeal: (meal) => {
+        const currentPlan = get().dailyPlan;
+        if (!currentPlan) return;
+
+        // Remove the old meal of the same type and add the new one
+        const updatedPlan = {
+            ...currentPlan,
+            meals: [
+                ...currentPlan.meals.filter((m) => m.type !== meal.type),
+                meal,
+            ],
         };
 
         // Update total macros

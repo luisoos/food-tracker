@@ -14,7 +14,11 @@ import {
     RecipeIngredient,
 } from '@/lib/types';
 import IngredientAmountReason from './ingredient-amount-reason';
-import { calculateCaloriesFromMacros } from '@/lib/algorithm/calculate';
+import {
+    calculateCaloriesFromMacros,
+    calculateRecipeMacros,
+    calculateRemainingMacros,
+} from '@/lib/algorithm/calculate';
 import { NumberTicker } from '../magicui/number-ticker';
 import MacroRing from './macro-ring';
 import { useDailyBalanceAdjustment } from '@/hooks/useDailyBalanceAdjustment';
@@ -63,6 +67,40 @@ export default function IngredientList({
     const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
     const [shakeBanner, setShakeBanner] = useState(false);
 
+    // Helper to recalculate macros after removing a meal
+    function getPlanWithoutMealAndRecalculated(
+        dailyPlan: DailyPlan | null,
+        mealTypeToRemove: MealType,
+    ): DailyPlan | null {
+        if (!dailyPlan) return null;
+        const meals = dailyPlan.meals.filter(
+            (meal) => meal.type !== mealTypeToRemove,
+        );
+        const totalMacros = meals.reduce(
+            (acc, meal) => {
+                const macros = meal.recipe.totalMacros
+                    ? meal.recipe.totalMacros
+                    : calculateRecipeMacros(meal.recipe);
+                acc.protein += macros.protein;
+                acc.carbs += macros.carbs;
+                acc.fat += macros.fat;
+                return acc;
+            },
+            { protein: 0, carbs: 0, fat: 0 },
+        );
+        const remainingMacros = {
+            protein: dailyPlan.goal.macros.protein - totalMacros.protein,
+            carbs: dailyPlan.goal.macros.carbs - totalMacros.carbs,
+            fat: dailyPlan.goal.macros.fat - totalMacros.fat,
+        };
+        return {
+            ...dailyPlan,
+            meals,
+            totalMacros,
+            remainingMacros,
+        };
+    }
+
     // Add daily balance adjustment
     const {
         canAdjust,
@@ -70,7 +108,10 @@ export default function IngredientList({
         handleAdjust,
     } = useDailyBalanceAdjustment({
         recipe: data!,
-        dailyPlan,
+        dailyPlan: getPlanWithoutMealAndRecalculated(
+            dailyPlan,
+            currentMealType,
+        ),
         currentMealType,
         onAdjustmentComplete: (newValues, newReasons) => {
             setChangedValues(newValues);
@@ -277,11 +318,17 @@ export default function IngredientList({
             amount: changedValues[ingredientId],
         };
 
+        // Use recalculated daily plan (with macros updated)
+        const recalculatedPlan = getPlanWithoutMealAndRecalculated(
+            dailyPlan,
+            currentMealType,
+        );
+
         try {
             const result = await adjustRecipe(
                 modifiedRecipe,
                 currentMealType,
-                dailyPlan,
+                recalculatedPlan!,
                 isRevertToOriginal, // Pass revert flag to backend
                 changedIngredient,
             );
