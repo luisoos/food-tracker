@@ -152,7 +152,7 @@ function MealDisplay({
                                 </HoverCardTrigger>
                                 <HoverCardContent
                                     align='start'
-                                    className='-translate-y-6'>
+                                    className='-translate-y-8 lg:-translate-y-6 z-0'>
                                     {typeName} bearbeiten
                                 </HoverCardContent>
                             </HoverCard>
@@ -169,7 +169,7 @@ function MealDisplay({
                                 </HoverCardTrigger>
                                 <HoverCardContent
                                     align='start'
-                                    className='-translate-y-6'>
+                                    className='-translate-y-8 lg:-translate-y-6 z-0'>
                                     {typeName} löschen
                                 </HoverCardContent>
                             </HoverCard>
