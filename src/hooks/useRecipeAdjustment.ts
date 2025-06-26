@@ -4,8 +4,10 @@ import {
     DailyPlan,
     RecipeIngredient,
     MealType,
+    ParentAdjustment,
 } from '@/lib/types';
 import { useState, useCallback } from 'react';
+import { roundIngredientAmount } from '@/lib/utils';
 
 export function useRecipeAdjustment() {
     const [adjustmentResult, setAdjustmentResult] =
@@ -44,6 +46,18 @@ export function useRecipeAdjustment() {
                 }
 
                 const result = await response.json();
+                // Uniformly round all newAmount values in adjustments if present
+                if (
+                    result &&
+                    result.adjustments &&
+                    result.adjustments.success &&
+                    Array.isArray(result.adjustments.data)
+                ) {
+                    result.adjustments.data = result.adjustments.data.map((adj: ParentAdjustment) => ({
+                        ...adj,
+                        newAmount: roundIngredientAmount(adj.newAmount),
+                    }));
+                }
                 setAdjustmentResult(result);
                 return result;
             } catch (err) {

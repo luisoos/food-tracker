@@ -34,3 +34,12 @@ export function gramOrEgg(gram: string, isEgg: boolean): number {
 export function eggToGram(gram: string, isEgg: boolean): number {
     return Math.round(Number(gram) * (isEgg ? 60 : 1));
 }
+
+/**
+ * Rounds the ingredient amount to the nearest 10g (kaufmännisch), but only if value >= 50.
+ * If value < 50, returns the value unchanged.
+ */
+export function roundIngredientAmount(value: number): number {
+    if (value < 50) return value;
+    return Math.round(value / 10) * 10;
+}
