@@ -13,7 +13,7 @@ import { Button } from '../ui/button';
 import IngredientList from './ingredient-list';
 import RecipeList from './recipe-list';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Ban, Plus } from 'lucide-react';
+import { ArrowLeft, Ban, Plus, SkipForward } from 'lucide-react';
 import { Macros, MealType, Recipe } from '@/lib/types';
 import { useDailyPlanStore } from '@/stores/daily-tracker';
 import { useRecipe } from '@/hooks/useRecipeById';
@@ -35,6 +35,7 @@ export default function RecipeSelector({
     const dailyPlan = useDailyPlanStore((state) => state.dailyPlan);
     const addMeal = useDailyPlanStore((state) => state.addMeal);
     const editMeal = useDailyPlanStore((state) => state.editMeal);
+    const skipMeal = useDailyPlanStore((state) => state.skipMeal);
     const [recipeId, setRecipeId] = useState<string | undefined>(undefined);
     const { data: recipe } = useRecipe(recipeId || '');
     const [recipeWithUpdatedMacros, setRecipeWithUpdatedMacros] =
@@ -104,12 +105,13 @@ export default function RecipeSelector({
                             recipeName={recipe?.name}
                         />
                     </DrawerTitle>
-                    <button
+                    <div className="sm:flex sm:space-between"><button
                         onClick={() => setRecipeId(undefined)}
                         className='cursor-pointer flex items-center gap-2 text-sm font-medium pl-0 mr-auto mb-2 underline-offset-4 hover:underline'>
                         <ArrowLeft size={16} /> Zurück zur{' '}
                         {recipeId ? 'Rezeptauswahl' : 'Tagesübersicht'}
                     </button>
+                    <Button variant='outline' size='sm' onClick={() => skipMeal(currentMealType)}><SkipForward />Mahlzeit überspringen</Button></div>
                     <DrawerDescription>
                         {!recipeId
                             ? 'Wähle ein Rezept aus:'

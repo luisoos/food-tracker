@@ -12,6 +12,7 @@ type Store = {
     editMeal: (meal: Meal) => void;
     removeMeal: (mealType: MealType) => void;
     updateTotalMacros: () => void;
+    skipMeal: (mealType: MealType) => void;
 };
 
 const calculateTotalMacros = (meals: Meal[]): Macros => {
@@ -159,6 +160,46 @@ export const useDailyPlanStore = create<Store>((set, get) => ({
                 carbs: currentPlan.goal.macros.carbs - totalMacros.carbs,
                 fat: currentPlan.goal.macros.fat - totalMacros.fat,
             },
+        };
+
+        get().setDailyPlan(updatedPlan);
+    },
+    skipMeal: (mealType: MealType) => {
+        const currentPlan = get().dailyPlan;
+        if (!currentPlan) return;
+
+        // Define a special skipped recipe
+        const skippedRecipe = {
+            id: `skipped-${mealType}`,
+            name: 'Übersprungen',
+            ingredients: [],
+            totalMacros: { protein: 0, carbs: 0, fat: 0 },
+            totalCalories: 0,
+        };
+
+        const meal = {
+            type: mealType,
+            recipe: skippedRecipe,
+        };
+
+        // Remove any existing meal of this type, then add the skipped meal
+        const updatedPlan = {
+            ...currentPlan,
+            meals: [
+                ...currentPlan.meals.filter((m) => m.type !== mealType),
+                meal,
+            ],
+        };
+
+        // Update total macros
+        const totalMacros = calculateTotalMacros(updatedPlan.meals);
+        updatedPlan.totalMacros = totalMacros;
+
+        // Update remaining macros
+        updatedPlan.remainingMacros = {
+            protein: currentPlan.goal.macros.protein - totalMacros.protein,
+            carbs: currentPlan.goal.macros.carbs - totalMacros.carbs,
+            fat: currentPlan.goal.macros.fat - totalMacros.fat,
         };
 
         get().setDailyPlan(updatedPlan);
