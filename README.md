@@ -1,14 +1,18 @@
 # 🍉 Food Tracker
 
-> Next.js project to visualise a concept of an adaptive nutrition & calorie tracker app.
+Web-app to visualise a concept of an adaptive nutrition & calorie tracker app. **Recalculate the ingredient amounts** in the recipe **based on shortages** from this or previous meals on the same day.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+> This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 - Next.js
 - TailwindCSS
 - [shadcn/ui](https://ui.shadcn.com/)
 - [zustand](https://zustand.docs.pmnd.rs/)
 - [TanStack Query](https://tanstack.com/query/latest)
+
+## To-do
+- [ ] Translate to English
+- [ ] Merge both algorithms (?)
 
 ## 🚀 Getting Started
 
